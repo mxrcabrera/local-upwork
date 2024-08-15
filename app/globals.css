@@ -17,17 +17,30 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
+  /* color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
       transparent,
       rgb(var(--background-end-rgb))
     )
-    rgb(var(--background-start-rgb));
+    rgb(var(--background-start-rgb)); */
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* Theme base properties */
+@layer base {
+  html {
+    --color-primary: #4285f4;
+    --color-secondary: #34a853;
+    --color-buttons: #fbbc05;
+    --color-typography: #ea4335;
+  }
+
+  @import "styles/themes/light.css";
+  @import "styles/themes/dark.css";
 }
