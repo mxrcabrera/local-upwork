@@ -15,6 +15,7 @@ pool:
 steps:
 - script: |
     curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+    export SHELL=/bin/bash
     pnpm setup
   displayName: 'Install and Setup pnpm'
 
