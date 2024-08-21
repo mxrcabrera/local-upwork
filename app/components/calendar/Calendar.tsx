@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import dayjs, { Dayjs } from 'dayjs';
-import { createReservation, getServices } from '../../utils/firestoreUtils';
+import { createReservation, getServices } from '../../utils/firestoreDB';
 
 const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);

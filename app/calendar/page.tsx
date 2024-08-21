@@ -10,7 +10,7 @@ export default function CalendarPage() {
     <div>
       <h1>Reserva tu turno</h1>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Calendar />
+        <Calendar />
       </LocalizationProvider>
     </div>
   );

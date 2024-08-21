@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createReservation, getServices } from '../../utils/firestoreUtils';
+import { createReservation, getServices } from '../../utils/firestoreDB';
 
 const ReservaComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);

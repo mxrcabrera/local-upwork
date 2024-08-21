@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
+
+import { cookies } from 'next/headers';
+import { SESSION_COOKIE_NAME } from './utils/constants';
+import Providers from "./components/providers/Providers"
 import NavMenu from "./components/NavMenu";
 import Footer from "./components/Footer";
 
@@ -16,12 +21,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const session = cookies().get(SESSION_COOKIE_NAME)?.value || null;
+
   return (
     <html lang="es">
       <body className={inter.className}>
-        <NavMenu />
-        {children}
-        <Footer />
+        <Providers session={session}>
+          <NavMenu />
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
