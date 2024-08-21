@@ -1,7 +1,51 @@
+"use client"
+
+import { useUserContext } from '../components/providers/UserProvider';
+import { useUserSession } from '../hooks/use-user-session';
+import { signInWithGoogle, signOutWithGoogle } from '../libs/firebase/auth';
+import { createSession, removeSession } from '../actions/auth-actions';
+
 export default function Ingreso() {
+
+    const { session } = useUserContext();
+    const userSessionId = useUserSession(session);
+
+    const handleSignIn = async () => {
+        const userUid = await signInWithGoogle();
+        if (userUid) {
+            await createSession(userUid);
+        }
+    };
+
+    const handleSignOut = async () => {
+        await signOutWithGoogle();
+        await removeSession();
+    };
+
+    if (!userSessionId) {
+        return (
+            <header>
+                <button onClick={handleSignIn}>Sign In</button>
+            </header>
+        );
+    }
+
     return (
-        <main>
-            Ingreso
-        </main>
-    )
+        <header>
+            <nav>
+                <ul>
+                    <li>
+                        <a href='#'>Menu A</a>
+                    </li>
+                    <li>
+                        <a href='#'>Menu B</a>
+                    </li>
+                    <li>
+                        <a href='#'>Menu C</a>
+                    </li>
+                </ul>
+            </nav>
+            <button onClick={handleSignOut}>Sign Out</button>
+        </header>
+    );
 }
