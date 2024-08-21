@@ -17,13 +17,15 @@ steps:
   displayName: 'Install pnpm'
 
 - script: |
+    pnpm setup
     pnpm install
     pnpm run build
   displayName: 'Build Next.js application'
 
 - script: |
+    pnpm setup
     pnpm install -g firebase-tools
     firebase deploy --only hosting
   displayName: 'Deploy to Firebase Hosting'
   env:
-    FIREBASE_TOKEN: $(FIREBASE_TOKEN)  # Asegúrate de configurar este token en las variables de entorno de tu pipeline
+    FIREBASE_TOKEN: $(FIREBASE_TOKEN)
