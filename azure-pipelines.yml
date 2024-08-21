@@ -1,0 +1,29 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: |
+    curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+  displayName: 'Install pnpm'
+
+- script: |
+    pnpm install
+    pnpm run build
+  displayName: 'Build Next.js application'
+
+- script: |
+    pnpm install -g firebase-tools
+    firebase deploy --only hosting
+  displayName: 'Deploy to Firebase Hosting'
+  env:
+    FIREBASE_TOKEN: $(FIREBASE_TOKEN)  # Asegúrate de configurar este token en las variables de entorno de tu pipeline
