@@ -6,6 +6,7 @@
 trigger:
   branches:
     include:
+      - dev
       - main
 
 pool:
@@ -14,18 +15,24 @@ pool:
 steps:
 - script: |
     curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
-  displayName: 'Install pnpm'
+    pnpm setup
+  displayName: 'Install and Setup pnpm'
 
 - script: |
-    pnpm setup
     pnpm install
     pnpm run build
   displayName: 'Build Next.js application'
 
 - script: |
-    pnpm setup
+    pnpm run test
+  displayName: 'Run Tests'
+  condition: eq(variables['Build.SourceBranchName'], 'refs/heads/dev')
+
+- script: |
     pnpm install -g firebase-tools
     firebase deploy --only hosting
   displayName: 'Deploy to Firebase Hosting'
+  condition: eq(variables['Build.SourceBranchName'], 'refs/heads/main')
   env:
     FIREBASE_TOKEN: $(FIREBASE_TOKEN)
+    SHELL: /bin/bash
