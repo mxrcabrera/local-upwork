@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import dayjs, { Dayjs } from 'dayjs';
-import { createReservation, getServices } from '../../utils/firestoreDB';
+import { createReservation } from '../../utils/repositories/reservationRepository';
+import { getServices } from '../../utils/repositories/serviceRepository';
 
 const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
@@ -31,7 +32,7 @@ const Calendar: React.FC = () => {
   };
 
   const fetchAvailability = (date: Dayjs) => {
-    const availableTimes = ['10:00 AM', '2:00 PM', '4:00 PM'];
+    const availableTimes = ['10:00 AM', '2:00 PM', '4:00 PM']; //TODO: traer desde db los horarios del profesional y ver formato
     setAvailability(availableTimes);
   };
 
