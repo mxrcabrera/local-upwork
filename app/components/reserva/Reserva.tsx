@@ -5,7 +5,7 @@ import { createReservation  } from '../../utils/repositories/reservationReposito
 const ReservaComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [servicios, setServicios] = useState<{ id: string, titulo: string }[]>([]);
+  const [servicios, setServicios] = useState<{ id: string; titulo?: string }[]>([]);
   const [selectedServicioId, setSelectedServicioId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const ReservaComponent: React.FC = () => {
         <option value="">Selecciona un servicio</option>
         {servicios.map((servicio) => (
           <option key={servicio.id} value={servicio.id}>
-            {servicio.titulo}
+            {servicio.titulo || 'Título desconocido'}
           </option>
         ))}
       </select>

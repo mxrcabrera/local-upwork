@@ -38,7 +38,14 @@ export async function createService(serviceData: any) {
 export async function getServices() {
   try {
     const querySnapshot = await getDocs(collection(firebaseDB, "servicios"));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        titulo: data.titulo || 'Título desconocido',
+        ...data,
+      };
+    });
   } catch (e) {
     console.error("Error al obtener los servicios: ", e);
     return [];
