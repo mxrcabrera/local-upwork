@@ -2,13 +2,13 @@ import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc } from "
 import { firebaseDB } from "../../libs/firebase/config";
 
 export enum TipoNotificacion {
-  NuevaReserva = "nueva reserva",
-  ConfirmacionReserva = "confirmación reserva",
-  CancelacionReserva = "cancelación reserva",
-  RecordatorioReserva = "recordatorio reserva",
-  NuevaResenaRecibida = "nueva reseña recibida",
-  VistaDePerfil = "vista de perfil",
-  ConfirmacionDePago = "confirmación de pago"
+  NUEVA_RESERVA = "nueva reserva",
+  CONFIRMACION_RESERVA = "confirmación reserva",
+  CANCELACION_RESERVA = "cancelación reserva",
+  RECORDATORIO_RESERVA = "recordatorio reserva",
+  NUEVA_RESENA_RECIBIDA = "nueva reseña recibida",
+  VISTA_DE_PERFIL = "vista de perfil",
+  CONFIRMACION_DE_PAGO = "confirmación de pago"
 }
 
 export enum EstadoNotificacion {

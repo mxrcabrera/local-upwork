@@ -2,10 +2,10 @@ import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc } from "
 import { firebaseDB } from "../../libs/firebase/config";
 
 export enum EstadoReserva {
-  Pendiente = "pendiente",
-  Confirmada = "confirmada",
-  Cancelada = "cancelada",
-  Completada = "completada"
+  PENDIENTE = "pendiente",
+  CONFIRMADA = "confirmada",
+  CANCELADA = "cancelada",
+  COMPLETADA = "completada"
 }
 
 // Create Reservation
@@ -13,7 +13,7 @@ export async function createReservation(reservationData: any) {
   try {
     await addDoc(collection(firebaseDB, "reservas"), {
       ...reservationData,
-      estado: EstadoReserva.Pendiente,
+      estado: EstadoReserva.PENDIENTE,
     });
     console.log("Reserva creada con éxito. ");
   } catch (e) {
@@ -55,7 +55,7 @@ export async function updateReservation(reservationId: string, updatedData: any)
     const reservationRef = doc(firebaseDB, "reservas", reservationId);
     await updateDoc(reservationRef, {
       ...updatedData,
-      estado: EstadoReserva.Confirmada, //TODO: chequear qué estad
+      estado: EstadoReserva.CONFIRMADA, //TODO: chequear qué estado dejar acá
     });
     console.log("Reserva actualizada con éxito");
   } catch (e) {

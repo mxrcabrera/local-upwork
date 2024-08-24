@@ -2,8 +2,8 @@ import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc } from "
 import { firebaseDB } from "../../libs/firebase/config";
 
 export enum TipoUsuario {
-  Profesional = "profesional",
-  Cliente = "cliente"
+  PROFESIONAL = "profesional",
+  CLIENTE = "cliente"
 }
 
 // Create User

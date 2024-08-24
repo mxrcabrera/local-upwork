@@ -2,26 +2,26 @@ import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc } from "
 import { firebaseDB } from "../../libs/firebase/config";
 
 export enum ModalidadPago {
-  PorHora = "por hora",
-  PorProyecto = "por proyecto"
+  POR_HORA = "por hora",
+  POR_PROYECTO = "por proyecto"
 }
 
 export enum TipoPrecio {
-  Fijo = "fijo",
-  ADefinir = "a definir",
-  Rango = "rango"
+  FIJO = "fijo",
+  A_DEFINIR = "a definir",
+  RANGO = "rango"
 }
 
 export enum TipoPago {
-  SinPago = "sin pago",
-  Parcial = "parcial",
-  Total = "total"
+  SIN_PAGO = "sin pago",
+  PARCIAL = "parcial",
+  TOTAL = "total"
 }
 
 export enum ModalidadLocacionServicio {
-  A_Domicilio = "a domicilio",
-  Remoto = "remoto",
-  ComercioFisico = "comercio físico"
+  A_DOMICILIO = "a domicilio",
+  REMOTO = "remoto",
+  COMERCIO_FISICO = "comercio físico"
 }
 
 // Create Service
@@ -42,7 +42,7 @@ export async function getServices() {
       const data = doc.data();
       return {
         id: doc.id,
-        titulo: data.titulo || 'Título desconocido',
+        titulo: data.titulo,
         ...data,
       };
     });
