@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { createReservation, getServices } from '../../utils/firestoreDB';
+import { getServices } from '../../utils/repositories/serviceRepository';
+import { createReservation } from '../../utils/repositories/reservationRepository';
 
 const ReservaComponent: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [servicios, setServicios] = useState<{ id: string, titulo: string }[]>([]);
+  const [servicios, setServicios] = useState<{ id: string; titulo?: string }[]>([]);
   const [selectedServicioId, setSelectedServicioId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -24,7 +25,7 @@ const ReservaComponent: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      await createReservation(selectedServicioId); // Usa el ID del servicio seleccionado
+      await createReservation(selectedServicioId);
       alert("Reserva creada con éxito");
     } catch (e) {
       setError("Error al crear la reserva. Por favor, inténtalo de nuevo.");
@@ -40,11 +41,13 @@ const ReservaComponent: React.FC = () => {
         onChange={(e) => setSelectedServicioId(e.target.value)}
       >
         <option value="">Selecciona un servicio</option>
-        {servicios.map((servicio) => (
-          <option key={servicio.id} value={servicio.id}>
-            {servicio.titulo}
-          </option>
-        ))}
+        {servicios.map((servicio) => 
+          servicio.titulo ? (
+            <option key={servicio.id} value={servicio.id}>
+              {servicio.titulo}
+            </option>
+          ) : null
+        )}
       </select>
       <button onClick={handleCreateReservation} disabled={loading}>
         {loading ? "Creando..." : "Crear Reserva"}

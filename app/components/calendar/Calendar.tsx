@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import dayjs, { Dayjs } from 'dayjs';
-import { createReservation, getServices } from '../../utils/firestoreDB';
+import { createReservation } from '../../utils/repositories/reservationRepository';
+import { getServices } from '../../utils/repositories/serviceRepository';
 
 const Calendar: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [availability, setAvailability] = useState<string[]>([]);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [reservations, setReservations] = useState<{ date: Dayjs, time: string }[]>([]);
-  const [servicios, setServicios] = useState<{ id: string, titulo: string }[]>([]);
+  const [servicios, setServicios] = useState<{ id: string, titulo?: string }[]>([]);
   const [selectedServicioId, setSelectedServicioId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +31,7 @@ const Calendar: React.FC = () => {
   };
 
   const fetchAvailability = (date: Dayjs) => {
-    const availableTimes = ['10:00 AM', '2:00 PM', '4:00 PM'];
+    const availableTimes = ['10:00 AM', '2:00 PM', '4:00 PM']; // TODO: traer desde db los horarios del profesional y ver formato
     setAvailability(availableTimes);
   };
 
@@ -80,11 +80,13 @@ const Calendar: React.FC = () => {
                 onChange={(e) => setSelectedServicioId(e.target.value)}
               >
                 <option value="">Selecciona un servicio</option>
-                {servicios.map((servicio) => (
-                  <option key={servicio.id} value={servicio.id}>
-                    {servicio.titulo}
-                  </option>
-                ))}
+                {servicios.map((servicio) => 
+                  servicio.titulo ? (
+                    <option key={servicio.id} value={servicio.id}>
+                      {servicio.titulo}
+                    </option>
+                  ) : null
+                )}
               </select>
               <button onClick={confirmReservation} disabled={!selectedServicioId}>
                 Confirmar Reserva
