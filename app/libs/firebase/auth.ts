@@ -3,6 +3,8 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     onAuthStateChanged as _onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
   } from 'firebase/auth';
   
   import { firebaseAuth } from './config';
@@ -31,5 +33,23 @@ import {
       await firebaseAuth.signOut();
     } catch (error) {
       console.error('Error signing out with Google', error);
+    }
+  }
+
+  export async function registerWithEmail(email: string, password: string) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+      return userCredential.user.uid;
+    } catch (error) {
+      console.error('Error registering with email', error);
+    }
+  }
+  
+  export async function signInWithEmail(email: string, password: string) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
+      return userCredential.user.uid;
+    } catch (error) {
+      console.error('Error signing in with email', error);
     }
   }

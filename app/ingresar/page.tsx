@@ -1,11 +1,11 @@
 "use client"
 
 import { useUserContext } from '../components/providers/UserProvider';
-import { useUserSession } from '../hooks/use-user-session';
+import { useUserSession } from '../hooks/useUserSession';
 import { signInWithGoogle, signOutWithGoogle } from '../libs/firebase/auth';
 import { createSession, removeSession } from '../actions/auth-actions';
 
-export default function Ingreso() {
+export default function Ingresar() {
 
     const { session } = useUserContext();
     const userSessionId = useUserSession(session);

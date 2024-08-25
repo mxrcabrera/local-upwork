@@ -9,7 +9,8 @@ export default function NavMenu() {
                     <li><Link href={"/"}>Inicio</Link></li>
                     <li><Link href={"/profesionales"}>Encuentra profesionales</Link></li>
                     <li><Link href={"/trabajo"}>Encuentra trabajo</Link></li>
-                    <li><Link href={"/ingreso"}>Ingreso</Link></li>
+                    <li><Link href={"/ingresar"}>Ingresar</Link></li>
+                    <li><Link href={"/registrarse"}>Registrarse</Link></li>
                     <li><ThemeSwitch /></li>
                 </ul>
             </nav>
