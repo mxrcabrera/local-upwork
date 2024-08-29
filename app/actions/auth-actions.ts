@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-import { HOME_ROUTE, ROOT_ROUTE, SESSION_COOKIE_NAME } from '../utils/constants';
+import { USERS_ONLY_ROUTE, ROOT_ROUTE, SESSION_COOKIE_NAME } from '../utils/constants';
 
 export async function createSession(uid: string) {
   cookies().set(SESSION_COOKIE_NAME, uid, {
@@ -13,7 +13,7 @@ export async function createSession(uid: string) {
     path: '/',
   });
 
-  redirect(HOME_ROUTE);
+  redirect(USERS_ONLY_ROUTE);
 }
 
 export async function removeSession() {
