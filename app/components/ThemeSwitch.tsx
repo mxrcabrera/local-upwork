@@ -2,22 +2,27 @@
 
 import { useTheme } from "./providers/ThemeProvider"
 import { THEMES } from "./providers/ThemeProvider";
+import Cookies from 'universal-cookie'
 
 export default function ThemeSwitch() {
 
     const { theme, setTheme } = useTheme();
-
+    const cookies = new Cookies()
+    
     const switchTheme = () => {
+        
         if (theme === THEMES.dark) {
             // The current theme is Dark, so is switched to light
             document.documentElement.classList.remove(THEMES.dark)
-            localStorage.theme = THEMES.light
+            
+            cookies.set('theme', THEMES.light)
             setTheme(THEMES.light)
 
-        } else if (theme === THEMES.light) {
+        } else { //(theme === THEMES.light) 
             // The current theme is Light, so is switched to dark
             document.documentElement.classList.add(THEMES.dark)
-            localStorage.theme = THEMES.dark
+
+            cookies.set('theme', THEMES.dark)
             setTheme(THEMES.dark)
         }
 
@@ -35,21 +40,3 @@ export default function ThemeSwitch() {
         </button>
     )
 }
-
-
-
-// On page load or when changing themes, best to add inline in `head` to avoid FOUC
-// if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-//     document.documentElement.classList.add('dark')
-//   } else {
-//     document.documentElement.classList.remove('dark')
-//   }
-  
-//   // Whenever the user explicitly chooses light mode
-//   localStorage.theme = 'light'
-  
-//   // Whenever the user explicitly chooses dark mode
-//   localStorage.theme = 'dark'
-  
-//   // Whenever the user explicitly chooses to respect the OS preference
-//   localStorage.removeItem('theme')

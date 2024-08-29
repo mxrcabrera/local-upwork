@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { createContext, useState, useContext, ReactNode } from 'react';
 import { ThemeProvider as MUIThemeProvider, createTheme } from '@mui/material/styles';
 
 export enum THEMES {
@@ -13,22 +13,8 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const getCurrentTheme = () => {
-    if (localStorage.theme === THEMES.dark || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add(THEMES.dark)
-        return THEMES.dark
-
-    } else {
-        return THEMES.light
-    }
-}
-
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [theme, setTheme] = useState<THEMES>(THEMES.light);
-
-    useEffect(() => {
-        setTheme(getCurrentTheme())
-    }, [])
+export const ThemeProvider: React.FC<{ children: ReactNode, initialTheme: any }> = ({ children, initialTheme }) => {
+    const [theme, setTheme] = useState<THEMES>(initialTheme);
 
     const themeContextValue = {
         theme,
