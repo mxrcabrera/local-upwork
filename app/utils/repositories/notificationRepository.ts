@@ -1,23 +1,10 @@
 import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
-
-export enum TipoNotificacion {
-  NUEVA_RESERVA = "nueva reserva",
-  CONFIRMACION_RESERVA = "confirmación reserva",
-  CANCELACION_RESERVA = "cancelación reserva",
-  RECORDATORIO_RESERVA = "recordatorio reserva",
-  NUEVA_RESENA_RECIBIDA = "nueva reseña recibida",
-  VISTA_DE_PERFIL = "vista de perfil",
-  CONFIRMACION_DE_PAGO = "confirmación de pago"
-}
-
-export enum EstadoNotificacion {
-  Leida = "leída",
-  NoLeida = "no leída"
-}
+import { TipoNotificacion, EstadoNotificacion } from '../types/enums';
+import { Notificacion } from '../types/notificationTypes';
 
 // Create Notification
-export async function createNotification(notificationData: any) {
+export async function createNotification(notificationData: Notificacion) {
   try {
     await addDoc(collection(firebaseDB, "notificaciones"), notificationData);
     console.log("Notificación creada con éxito");
@@ -27,10 +14,20 @@ export async function createNotification(notificationData: any) {
 }
 
 // Get Notifications
-export async function getNotifications() {
+export async function getNotifications(): Promise<Notificacion[]> {
   try {
     const querySnapshot = await getDocs(collection(firebaseDB, "notificaciones"));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        usuarioId: data.usuarioId,
+        mensaje: data.mensaje,
+        tipo: data.tipo,
+        fecha: new Date(data.fecha),
+        estado: data.estado
+      } as Notificacion;
+    });
   } catch (e) {
     console.error("Error al obtener las notificaciones: ", e);
     return [];
@@ -38,12 +35,20 @@ export async function getNotifications() {
 }
 
 // Get Notification by ID
-export async function getNotificationById(notificationId: string) {
+export async function getNotificationById(notificationId: string): Promise<Notificacion | null> {
   try {
     const notificationRef = doc(firebaseDB, "notificaciones", notificationId);
     const notificationSnap = await getDoc(notificationRef);
     if (notificationSnap.exists()) {
-      return { id: notificationSnap.id, ...notificationSnap.data() };
+      const data = notificationSnap.data();
+      return {
+        id: notificationSnap.id,
+        usuarioId: data.usuarioId,
+        mensaje: data.mensaje,
+        tipo: data.tipo,
+        fecha: new Date(data.fecha),
+        estado: data.estado
+      } as Notificacion;
     } else {
       console.log("No se encontró la notificación");
       return null;
@@ -55,7 +60,7 @@ export async function getNotificationById(notificationId: string) {
 }
 
 // Update Notification
-export async function updateNotification(notificationId: string, updatedData: any) {
+export async function updateNotification(notificationId: string, updatedData: Partial<Notificacion>) {
   try {
     const notificationRef = doc(firebaseDB, "notificaciones", notificationId);
     await updateDoc(notificationRef, updatedData);
