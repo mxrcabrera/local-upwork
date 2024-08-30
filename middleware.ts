@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { HOME_ROUTE, ROOT_ROUTE, SESSION_COOKIE_NAME } from './app/utils/constants';
+import { USERS_ONLY_ROUTE, ROOT_ROUTE, SESSION_COOKIE_NAME } from './app/utils/constants';
 
-const protectedRoutes = [HOME_ROUTE];
+const protectedRoutes = [USERS_ONLY_ROUTE];
 
 export default function middleware(request: NextRequest) {
   const session = request.cookies.get(SESSION_COOKIE_NAME)?.value || '';
@@ -14,7 +14,7 @@ export default function middleware(request: NextRequest) {
 
   // Redirect to home if session is set and user tries to access root
   if (session && request.nextUrl.pathname === ROOT_ROUTE) {
-    const absoluteURL = new URL(HOME_ROUTE, request.nextUrl.origin);
+    const absoluteURL = new URL(USERS_ONLY_ROUTE, request.nextUrl.origin);
     return NextResponse.redirect(absoluteURL.toString());
   }
 }
