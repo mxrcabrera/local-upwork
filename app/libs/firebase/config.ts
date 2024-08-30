@@ -1,6 +1,6 @@
 import { getAuth } from 'firebase/auth';
 import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, addDoc, Timestamp } from "firebase/firestore";
+import { getFirestore, } from "firebase/firestore";
 
 // Load .env variables
 const firebaseConfig = {
