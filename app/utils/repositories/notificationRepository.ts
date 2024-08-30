@@ -23,9 +23,9 @@ export async function getNotifications(): Promise<Notificacion[]> {
         id: doc.id,
         usuarioId: data.usuarioId,
         mensaje: data.mensaje,
-        tipo: data.tipo,
-        fecha: new Date(data.fecha),
-        estado: data.estado
+        tipo: data.tipo as TipoNotificacion,
+        fecha: data.fecha,
+        estado: data.estado as EstadoNotificacion
       } as Notificacion;
     });
   } catch (e) {
@@ -45,9 +45,9 @@ export async function getNotificationById(notificationId: string): Promise<Notif
         id: notificationSnap.id,
         usuarioId: data.usuarioId,
         mensaje: data.mensaje,
-        tipo: data.tipo,
-        fecha: new Date(data.fecha),
-        estado: data.estado
+        tipo: data.tipo as TipoNotificacion,
+        fecha: data.fecha,
+        estado: data.estado as EstadoNotificacion
       } as Notificacion;
     } else {
       console.log("No se encontró la notificación");
