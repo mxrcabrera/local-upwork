@@ -24,7 +24,7 @@ const DisponibilidadComponent: React.FC<DisponibilidadProps> = ({ professionalId
     <div>
       {availability.map((day, index) => (
         <div key={index}>
-          <h3>{day.dia}</h3>
+          <h3>{day.dia.toDate().toLocaleDateString()}</h3>
           {day.turnos.map((turno, idx) => (
             <p key={idx}>
               Turno ID: {turno.turnoId} - {turno.inicio} - {turno.fin} ({turno.duracion} horas)
