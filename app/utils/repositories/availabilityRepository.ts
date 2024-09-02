@@ -1,10 +1,21 @@
-import { getDocs, collection } from "firebase/firestore";
+import { addDoc, getDocs, collection } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
-import { Turno, Disponibilidad } from '../types/availabilityTypes';
-import { getProfiles } from '../../utils/repositories/professionalProfileRepository'; // Import the function
+import { Shift, Availability } from '../types/availabilityTypes';
+import { getProfiles } from '../../utils/repositories/professionalProfileRepository';
+import { v4 as uuidv4 } from 'uuid';
 
-// Function to get availability
-export async function getAvailability(): Promise<Disponibilidad[]> {
+// Create Availability
+export async function createAvailability(availabilityData: Availability): Promise<void> {
+  try {
+    const availabilityWithId = { ...availabilityData, id: uuidv4() };
+    await addDoc(collection(firebaseDB, "disponibilidad"), availabilityWithId);
+    console.log("Disponibilidad creada con éxito");
+  } catch (e) {
+    console.error("Error al crear la disponibilidad: ", e);
+  }
+}
+
+export async function getAvailability(): Promise<Availability[]> {
   try {
     const profiles = await getProfiles();
     if (profiles.length === 0) {
@@ -14,21 +25,21 @@ export async function getAvailability(): Promise<Disponibilidad[]> {
     const professionalId = profiles[0].id; // TODO: change when we have real data in db
 
     const querySnapshot = await getDocs(collection(firebaseDB, `perfilesProfesionales/${professionalId}/disponibilidad`));
-    const availabilityData: Disponibilidad[] = [];
+    const availabilityData: Availability[] = [];
     
     querySnapshot.docs.forEach(doc => {
-      const data = doc.data() as Disponibilidad;
+      const data = doc.data() as Availability;
       
-      if (data.turnos) {
-        const diaString = data.dia.toDate().toISOString().split('T')[0];
+      if (data.shifts) {
+        const dayString = data.day.toDate().toISOString().split('T')[0];
         
-        const existingDay = availabilityData.find(d => d.dia.toDate().toISOString().split('T')[0] === diaString);
+        const existingDay = availabilityData.find(d => d.day.toDate().toISOString().split('T')[0] === dayString);
         if (existingDay) {
-          existingDay.turnos.push(...data.turnos);
+          existingDay.shifts.push(...data.shifts);
         } else {
           availabilityData.push({
-            dia: data.dia,
-            turnos: data.turnos
+            day: data.day,
+            shifts: data.shifts
           });
         }
       }

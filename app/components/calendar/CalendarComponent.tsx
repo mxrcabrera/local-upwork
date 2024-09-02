@@ -3,28 +3,28 @@ import { StaticDatePicker } from '@mui/x-date-pickers/StaticDatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { createReservation } from '../../utils/repositories/reservationRepository';
 import { getServices } from '../../utils/repositories/serviceRepository';
-import { getAvailability } from '../../utils/repositories/availabilityRepository'; // Use the function
+import { getAvailability } from '../../utils/repositories/availabilityRepository';
 import { Timestamp } from "firebase/firestore";
-import { EstadoReserva } from '@/app/utils/types/enums';
-import { Servicio } from '../../utils/types/serviceTypes';
-import { Turno, Disponibilidad } from '../../utils/types/availabilityTypes';
-import { CalendarioTypes } from '../../utils/types/calendarTypes';
-import { Reserva } from '../../utils/types/reservationTypes';
+import { ReservationStatus } from '@/app/utils/types/enums';
+import { Service } from '../../utils/types/serviceTypes';
+import { Shift, Availability } from '../../utils/types/availabilityTypes';
+import { CalendarTypes } from '../../utils/types/calendarTypes';
+import { Reservation } from '../../utils/types/reservationTypes';
 import { v4 as uuidv4 } from 'uuid';
 
-const Calendar: React.FC<CalendarioTypes> = ({ clienteId }) => {
+const CalendarComponent: React.FC<CalendarTypes> = ({ clientId }) => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [availability, setAvailability] = useState<Disponibilidad[]>([]);
-  const [selectedTurno, setSelectedTurno] = useState<Turno | null>(null);
-  const [reservations, setReservations] = useState<Reserva[]>([]);
-  const [servicios, setServicios] = useState<Servicio[]>([]);
-  const [selectedServicioId, setSelectedServicioId] = useState<string | null>(null);
+  const [availability, setAvailability] = useState<Availability[]>([]);
+  const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadServices = async () => {
       const fetchedServices = await getServices();
-      setServicios(fetchedServices);
+      setServices(fetchedServices);
     };
     loadServices();
   }, []);
@@ -37,11 +37,11 @@ const Calendar: React.FC<CalendarioTypes> = ({ clienteId }) => {
 
   const fetchAvailability = async (date: Dayjs) => {
     try {
-      const availabilityData: Disponibilidad[] = await getAvailability();
+      const availabilityData: Availability[] = await getAvailability();
       const selectedTimestamp = Timestamp.fromDate(date.startOf('day').toDate());
       
-      setAvailability(availabilityData.filter((disponibilidad) => 
-        disponibilidad.dia.isEqual(selectedTimestamp)
+      setAvailability(availabilityData.filter((availability) => 
+        availability.day.isEqual(selectedTimestamp)
       ));
     } catch (error) {
       console.error("Error al obtener la disponibilidad: ", error);
@@ -50,31 +50,31 @@ const Calendar: React.FC<CalendarioTypes> = ({ clienteId }) => {
 
   const handleDateChange = (date: Dayjs | null) => {
     setSelectedDate(date);
-    setSelectedTurno(null);
-    setSelectedServicioId(null);
+    setSelectedShift(null);
+    setSelectedServiceId(null);
   };
 
-  const handleTimeSelection = (turno: Turno) => {
-    setSelectedTurno(turno);
+  const handleTimeSelection = (shift: Shift) => {
+    setSelectedShift(shift);
   };
 
   const confirmReservation = async () => {
-    if (selectedDate && selectedTurno && selectedServicioId) {
+    if (selectedDate && selectedShift && selectedServiceId) {
       try {
-        const fechaReserva = dayjs(`${selectedDate.format('YYYY-MM-DD')}T${selectedTurno.inicio}:00`).toDate();
-        const timestamp = Timestamp.fromDate(fechaReserva);
-        const newReservation: Reserva = {
+        const reservationDate = dayjs(`${selectedDate.format('YYYY-MM-DD')}T${selectedShift.start}:00`).toDate();
+        const timestamp = Timestamp.fromDate(reservationDate);
+        const newReservation: Reservation = {
           id: uuidv4(),
-          clienteId,
-          servicioId: selectedServicioId,
-          fechaReserva: timestamp,
-          turnoId: selectedTurno.turnoId,
-          estado: EstadoReserva.CONFIRMADA
+          clientId,
+          serviceId: selectedServiceId,
+          reservationDate: timestamp,
+          shiftId: selectedShift.shiftId,
+          status: ReservationStatus.CONFIRMED
         };
-        await createReservation(clienteId, selectedServicioId, timestamp, selectedTurno.turnoId);
+        await createReservation(clientId, selectedServiceId, timestamp, selectedShift.shiftId);
         setReservations([...reservations, newReservation]);
-        alert(`Reserva confirmada para el ${selectedDate.format('DD/MM/YYYY')} a las ${selectedTurno.inicio}`);
-        setSelectedTurno(null);
+        alert(`Reserva confirmada para el ${selectedDate.format('DD/MM/YYYY')} a las ${selectedShift.start}`);
+        setSelectedShift(null);
       } catch (e) {
         console.error("Error al confirmar la reserva: ", e);
       }
@@ -93,34 +93,34 @@ const Calendar: React.FC<CalendarioTypes> = ({ clienteId }) => {
         <div>
           <h3>Disponibilidad para {selectedDate.format('DD/MM/YYYY')}:</h3>
           <ul>
-            {availability.map((disponibilidad: Disponibilidad) => {
+            {availability.map((availability: Availability) => {
               const selectedTimestamp = Timestamp.fromDate(selectedDate.toDate());
-              return disponibilidad.dia.toDate().toDateString() === selectedTimestamp.toDate().toDateString() && disponibilidad.turnos.map((turno, index) => (
+              return availability.day.toDate().toDateString() === selectedTimestamp.toDate().toDateString() && availability.shifts.map((shift, index) => (
                 <li key={index}>
-                  <button onClick={() => handleTimeSelection(turno)}>
-                    {turno.inicio} - {turno.fin}
+                  <button onClick={() => handleTimeSelection(shift)}>
+                    {shift.start} - {shift.end}
                   </button>
                 </li>
               ));
             })}
           </ul>
-          {selectedTurno && (
+          {selectedShift && (
             <div>
-              <p>Has seleccionado: {selectedTurno.inicio} - {selectedTurno.fin}</p>
+              <p>Has seleccionado: {selectedShift.start} - {selectedShift.end}</p>
               <select
-                value={selectedServicioId || ''}
-                onChange={(e) => setSelectedServicioId(e.target.value)}
+                value={selectedServiceId || ''}
+                onChange={(e) => setSelectedServiceId(e.target.value)}
               >
                 <option value="">Selecciona un servicio</option>
-                {servicios.map((servicio) => 
-                  servicio.titulo ? (
-                    <option key={servicio.id} value={servicio.id}>
-                      {servicio.titulo}
+                {services.map((service) => 
+                  service.title ? (
+                    <option key={service.id} value={service.id}>
+                      {service.title}
                     </option>
                   ) : null
                 )}
               </select>
-              <button onClick={confirmReservation} disabled={!selectedServicioId}>
+              <button onClick={confirmReservation} disabled={!selectedServiceId}>
                 Confirmar Reserva
               </button>
             </div>
@@ -132,4 +132,4 @@ const Calendar: React.FC<CalendarioTypes> = ({ clienteId }) => {
   );
 };
 
-export default Calendar;
+export default CalendarComponent;

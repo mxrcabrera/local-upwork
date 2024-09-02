@@ -14,7 +14,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode, initialTheme: any }> = ({ children, initialTheme }) => {
-    const [theme, setTheme] = useState<THEMES>(initialTheme);
+    const [theme, setTheme] = useState<THEMES>(initialTheme || THEMES.light);
 
     const themeContextValue = {
         theme,

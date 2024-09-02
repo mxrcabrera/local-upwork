@@ -1,12 +1,15 @@
 import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
-import { Servicio, Resenia } from "../types/serviceTypes";
+import { Service, Review } from "../types/serviceTypes";
+import { v4 as uuidv4 } from 'uuid';
 
 // Create Service
-export async function createService(serviceData: Servicio) {
+export async function createService(serviceData: Service): Promise<Service | void> {
   try {
-    await addDoc(collection(firebaseDB, "servicios"), serviceData);
+    const serviceWithId = { ...serviceData, id: uuidv4() };
+    const docRef = await addDoc(collection(firebaseDB, "services"), serviceWithId);
     console.log("Servicio creado con éxito");
+    return { ...serviceWithId, id: docRef.id };
   } catch (e) {
     console.error("Error al crear el servicio: ", e);
   }
@@ -17,12 +20,12 @@ export async function getServices() {
   try {
     const querySnapshot = await getDocs(collection(firebaseDB, "servicios"));
     return querySnapshot.docs.map(doc => {
-      const data = doc.data() as Servicio;
+      const data = doc.data() as Service;
       return {
         ...data,
         id: doc.id,
-        resenias: data.resenias.map((resenia: Resenia) => ({
-          ...resenia,
+        reviews: data.reviews.map((review: Review) => ({
+          ...review,
         }))
       };
     });
@@ -38,12 +41,12 @@ export async function getServiceById(serviceId: string) {
     const serviceRef = doc(firebaseDB, "servicios", serviceId);
     const serviceSnap = await getDoc(serviceRef);
     if (serviceSnap.exists()) {
-      const data = serviceSnap.data() as Servicio;
+      const data = serviceSnap.data() as Service;
       return {
         ...data,
         id: serviceSnap.id,
-        resenias: data.resenias.map((resenia: Resenia) => ({
-          ...resenia,
+        reviews: data.reviews.map((review: Review) => ({
+          ...review,
         }))
       };
     } else {
@@ -57,7 +60,7 @@ export async function getServiceById(serviceId: string) {
 }
 
 // Update Service
-export async function updateService(serviceId: string, updatedData: Partial<Servicio>) {
+export async function updateService(serviceId: string, updatedData: Partial<Service>) {
   try {
     const serviceRef = doc(firebaseDB, "servicios", serviceId);
     await updateDoc(serviceRef, updatedData);

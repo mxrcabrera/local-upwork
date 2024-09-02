@@ -1,14 +1,14 @@
 import { Timestamp } from 'firebase/firestore';
-import { TipoUsuario } from '../types/enums';
+import { UserType } from '../types/enums';
 
-export interface Usuario {
+export interface User {
     id: string;
-    nombre: string;
+    name: string;
     email: string;
-    tipo: TipoUsuario;
-    fechaRegistro: Timestamp;
-    fechaUltimoLogin: Timestamp;
-    ubicacion: string;
-    telefono?: string;
-    fotoPerfil?: string;
+    userType: UserType;
+    registerDate: Timestamp;
+    lastLoginDate: Timestamp;
+    location: string;
+    phoneNumber?: string;
+    profilePhoto?: string;
   }

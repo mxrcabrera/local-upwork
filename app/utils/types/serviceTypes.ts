@@ -1,26 +1,26 @@
 import { Timestamp } from 'firebase/firestore';
-import { ModalidadPago, TipoPrecio, TipoPago, ModalidadLocacionServicio } from './enums';
+import { PaymentMethod, PriceType, PaymentType, ServiceLocationModality } from './enums';
 
-export interface Servicio {
+export interface Service {
   id: string;
-  titulo: string;
-  descripcion: string;
-  modalidadPago: ModalidadPago;
-  tipoPrecio: TipoPrecio;
-  tipoPago: TipoPago;
-  profesionalId: string;
-  categoria: string;
-  informacionRequerida?: string;
-  modalidadLocacionServicio: ModalidadLocacionServicio;
+  title: string;
+  description: string;
+  paymentMethod: PaymentMethod;
+  priceType: PriceType;
+  paymentType: PaymentType;
+  professionalId: string;
+  category: string;
+  requiredInformation?: string;
+  serviceLocationModality: ServiceLocationModality;
   portfolio?: string[];
-  resenias: Resenia[];
+  reviews: Review[];
 }
 
-export interface Resenia {
+export interface Review {
   id: string;
-  servicioId: string;
-  clienteId: string;
-  calificacion: number;
-  comentario: string;
-  fecha: Timestamp;
+  serviceId: string;
+  clientId: string;
+  calification: number;
+  comment: string;
+  date: Timestamp;
 }

@@ -1,11 +1,11 @@
 import { Timestamp } from 'firebase/firestore';
-import { TipoNotificacion, EstadoNotificacion } from './enums';
+import { NotificationType, NotificationStatus } from './enums';
 
-export interface Notificacion {
+export interface Notification {
   id: string;
-  usuarioId: string;
-  mensaje: string;
-  tipo: TipoNotificacion;
-  fecha: Timestamp;
-  estado: EstadoNotificacion;
+  userId: string;
+  message: string;
+  notificationType: NotificationType;
+  date: Timestamp;
+  status: NotificationStatus;
 }

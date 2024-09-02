@@ -1,40 +1,44 @@
 import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc, Timestamp } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
-import { PerfilProfesional } from '../types/professionalProfileTypes';
+import { ProfessionalProfile } from '../types/professionalProfileTypes';
+import { v4 as uuidv4 } from 'uuid';
 
 function isTimestamp(value: any): value is Timestamp {
   return value && typeof value === 'object' && value instanceof Timestamp;
 }
 
 // Create Profile
-export async function createProfile(profileData: PerfilProfesional) {
+export async function createProfile(profileData: ProfessionalProfile): Promise<ProfessionalProfile | null> {
   try {
     const updatedProfileData = {
       ...profileData,
-      disponibilidad: profileData.disponibilidad.map(d => ({
+      id: uuidv4(),
+      availability: profileData.availability.map(d => ({
         ...d,
-        dia: isTimestamp(d.dia) ? d.dia : Timestamp.fromDate(new Date(d.dia))
+        dia: isTimestamp(d.day) ? d.day : Timestamp.fromDate(new Date(d.day))
       }))
     };
-    await addDoc(collection(firebaseDB, "perfilesProfesionales"), updatedProfileData);
+    const docRef = await addDoc(collection(firebaseDB, "perfilesProfesionales"), updatedProfileData);
     console.log("Perfil profesional creado con éxito");
+    return { ...updatedProfileData, id: docRef.id };
   } catch (e) {
     console.error("Error al crear el perfil profesional: ", e);
+    return null;
   }
 }
 
 // Get All Profiles
-export async function getProfiles(): Promise<PerfilProfesional[]> {
+export async function getProfiles(): Promise<ProfessionalProfile[]> {
   try {
     const querySnapshot = await getDocs(collection(firebaseDB, "perfilesProfesionales"));
     return querySnapshot.docs.map(doc => {
-      const data = doc.data() as PerfilProfesional;
+      const data = doc.data() as ProfessionalProfile;
       return {
         ...data,
         id: doc.id,
-        disponibilidad: data.disponibilidad.map(d => ({
+        availability: data.availability.map(d => ({
           ...d,
-          dia: d.dia
+          dia: d.day
         }))
       };
     });
@@ -45,18 +49,18 @@ export async function getProfiles(): Promise<PerfilProfesional[]> {
 }
 
 // Get Profile by ID
-export async function getProfileById(profileId: string): Promise<PerfilProfesional | null> {
+export async function getProfileById(profileId: string): Promise<ProfessionalProfile | null> {
   try {
     const profileRef = doc(firebaseDB, "perfilesProfesionales", profileId);
     const profileSnap = await getDoc(profileRef);
     if (profileSnap.exists()) {
-      const data = profileSnap.data() as PerfilProfesional;
+      const data = profileSnap.data() as ProfessionalProfile;
       return {
         ...data,
         id: profileSnap.id,
-        disponibilidad: data.disponibilidad.map(d => ({
+        availability: data.availability.map(d => ({
           ...d,
-          dia: d.dia
+          day: d.day
         }))
       };
     } else {
@@ -70,14 +74,14 @@ export async function getProfileById(profileId: string): Promise<PerfilProfesion
 }
 
 // Update Profile
-export async function updateProfile(profileId: string, updatedData: Partial<PerfilProfesional>) {
+export async function updateProfile(profileId: string, updatedData: Partial<ProfessionalProfile>) {
   try {
     const profileRef = doc(firebaseDB, "perfilesProfesionales", profileId);
     const updatedProfileData = {
       ...updatedData,
-      disponibilidad: updatedData.disponibilidad?.map(d => ({
+      availability: updatedData.availability?.map(d => ({
         ...d,
-        dia: isTimestamp(d.dia) ? d.dia : Timestamp.fromDate(new Date(d.dia))
+        day: isTimestamp(d.day) ? d.day : Timestamp.fromDate(new Date(d.day))
       }))
     };
     await updateDoc(profileRef, updatedProfileData);

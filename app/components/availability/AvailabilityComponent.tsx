@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { getDocs, collection } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
-import { Disponibilidad } from '../../utils/types';
+import { Availability } from '../../utils/types/availabilityTypes';
 
-interface DisponibilidadProps {
+interface AvailabilityProps {
   professionalId: string;
 }
 
-const DisponibilidadComponent: React.FC<DisponibilidadProps> = ({ professionalId }) => {
-  const [availability, setAvailability] = useState<Disponibilidad[]>([]);
+const AvailabilityComponent: React.FC<AvailabilityProps> = ({ professionalId }) => {
+  const [availability, setAvailability] = useState<Availability[]>([]);
 
   useEffect(() => {
     const fetchAvailability = async () => {
       const querySnapshot = await getDocs(collection(firebaseDB, `profesionales/${professionalId}/disponibilidad`));
-      const availabilityData = querySnapshot.docs.map(doc => doc.data() as Disponibilidad);
+      const availabilityData = querySnapshot.docs.map(doc => doc.data() as Availability);
       setAvailability(availabilityData);
     };
 
@@ -24,10 +24,10 @@ const DisponibilidadComponent: React.FC<DisponibilidadProps> = ({ professionalId
     <div>
       {availability.map((day, index) => (
         <div key={index}>
-          <h3>{day.dia.toDate().toLocaleDateString()}</h3>
-          {day.turnos.map((turno, idx) => (
+          <h3>{day.day.toDate().toLocaleDateString()}</h3>
+          {day.shifts.map((shift, idx) => (
             <p key={idx}>
-              Turno ID: {turno.turnoId} - {turno.inicio} - {turno.fin} ({turno.duracion} horas)
+              Turno ID: {shift.shiftId} - {shift.start} - {shift.end} ({shift.length} horas)
             </p>
           ))}
         </div>
@@ -36,4 +36,4 @@ const DisponibilidadComponent: React.FC<DisponibilidadProps> = ({ professionalId
   );
 };
 
-export default DisponibilidadComponent;
+export default AvailabilityComponent;

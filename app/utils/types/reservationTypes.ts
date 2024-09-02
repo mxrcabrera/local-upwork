@@ -1,11 +1,11 @@
-import { EstadoReserva } from './enums';
+import { ReservationStatus } from './enums';
 import { Timestamp } from "firebase/firestore";
 
-export interface Reserva {
+export interface Reservation {
   id: string;
-  clienteId: string;
-  servicioId: string;
-  fechaReserva: Timestamp;
-  turnoId: string;
-  estado: EstadoReserva;
+  clientId: string;
+  serviceId: string;
+  reservationDate: Timestamp;
+  shiftId: string;
+  status: ReservationStatus;
 }

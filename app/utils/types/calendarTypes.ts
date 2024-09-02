@@ -1,4 +1,4 @@
-export interface CalendarioTypes {
-    clienteId: string;
+export interface CalendarTypes {
+    clientId: string;
     professionalId: string;
   }
