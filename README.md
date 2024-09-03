@@ -28,69 +28,139 @@ ________________________________________________________________________________
 
 ESTRUCTURA DE LA BASE DE DATOS NoSQL EN FIREBASE
 
-Colecciones y Documentos
+1. Usuarios
 
-1) Usuarios
-
-Documentos: Cada usuario tiene un documento único.
+Colección: users
+Documento: {userId}
 Campos:
-nombre: Nombre del usuario.
-email: Correo electrónico del usuario.
-tipo: Tipo de usuario (profesional o cliente).
-fechaRegistro: Fecha de registro en la plataforma.
-ubicación: Ubicación del usuario.
-perfilCompleto: Booleano que indica si el perfil está completo.
+- name: Nombre del usuario.
+- email: Correo electrónico del usuario.
+- userType: Tipo de usuario (professional o client).
+- registerDate: Fecha de registro en la plataforma.
+- lastLoginDate: Fecha del último inicio de sesión.
+- location: Ubicación del usuario.
+- phoneNumber (opcional): Número de teléfono del usuario.
+- profilePhoto (opcional): URL de la foto de perfil del usuario.
 
-2) Perfiles Profesionales
+2. Perfiles Profesionales
 
-Documentos: Cada profesional tiene un documento único, relacionado con un usuario.
+Colección: professionalProfiles
+Documento: {profileId}
 Campos:
-usuarioId: ID del usuario asociado.
-skills: Lista de habilidades o servicios ofrecidos.
-rating: Calificación promedio.
-portfolio: URLs de trabajos realizados.
-zonasServicio: Áreas geográficas donde ofrece servicios.
-verificado: Booleano que indica si el profesional ha sido verificado.
-serviciosOfrecidos: Lista de referencias a documentos de Servicios.
+- userId: ID del usuario asociado.
+- skills: Lista de habilidades o servicios ofrecidos.
+- rating: Calificación promedio.
+- jobsDone: Lista de trabajos realizados.
+- verifiedPremium: Booleano que indica si el profesional está verificado como premium.
+- offeredServices: Lista de IDs de servicios ofrecidos.
+- biography (opcional): Biografía del profesional.
+- availability: Lista de disponibilidades del profesional.
 
-3) Servicios
+_ Subcolección: services
 
-Documentos: Cada servicio publicado tiene un documento único.
+Documento: {serviceId}
 Campos:
-titulo: Título del servicio.
-descripcion: Descripción detallada del servicio.
-precio: Precio del servicio.
-profesionalId: ID del perfil profesional que ofrece el servicio.
-categoria: Categoría del servicio (ej. plomería, electricidad).
+- title: Título del servicio.
+- description: Descripción detallada del servicio.
+- paymentMethod: Método de pago (por hora, por proyecto).
+- priceType: Tipo de precio (fijo, a definir, rango).
+- paymentType: Tipo de pago (sin pago, parcial, total).
+- category: Categoría del servicio (ej. plomería, electricidad).
+- requiredInformation (opcional): Información requerida para el servicio.
+- serviceLocationModality: Modalidad de ubicación del servicio (entrega a domicilio, remoto, comercio físico).
+- portfolio (opcional): URLs de trabajos realizados.
 
-4) Reservas
+_ Subcolección: reviews
 
-Documentos: Cada reserva tiene un documento único.
+Documento: {reviewId}
 Campos:
-clienteId: ID del cliente que realiza la reserva.
-servicioId: ID del servicio reservado.
-fechaReserva: Fecha y hora de la reserva.
-estado: Estado de la reserva (pendiente, confirmada, completada).
-Denormalización: Almacena el nombre del cliente para evitar consultas adicionales.
+- clientId: ID del cliente que deja la reseña.
+- calification: Calificación numérica.
+- comment: Comentario del cliente.
+- date: Fecha de la reseña.
 
-5) Reseñas
+3. Servicios
 
-Documentos: Cada reseña tiene un documento único.
+Colección: services
+Documento: {serviceId}
 Campos:
-clienteId: ID del cliente que deja la reseña.
-profesionalId: ID del perfil profesional reseñado.
-calificacion: Calificación numérica.
-comentario: Comentario del cliente.
-fecha: Fecha de la reseña.
+- title: Título del servicio.
+- description: Descripción detallada del servicio.
+- paymentMethod: Método de pago (por hora, por proyecto).
+- priceType: Tipo de precio (fijo, a definir, rango).
+- paymentType: Tipo de pago (sin pago, parcial, total).
+- professionalId: ID del perfil profesional que ofrece el servicio.
+- category: Categoría del servicio (ej. plomería, electricidad).
+- requiredInformation (opcional): Información requerida para el servicio.
+- serviceLocationModality: Modalidad de ubicación del servicio (entrega a domicilio, remoto, comercio físico).
+- portfolio (opcional): URLs de trabajos realizados.
 
-6) Notificaciones
+_ Subcolección: reviews
 
-Documentos: Cada notificación tiene un documento único.
+Documento: {reviewId}
 Campos:
-usuarioId: ID del usuario que recibe la notificación.
-mensaje: Contenido de la notificación.
-tipo: Tipo de notificación (ej. vista de perfil, nueva reserva).
-fecha: Fecha de la notificación.
+- clientId: ID del cliente que deja la reseña.
+- calification: Calificación numérica.
+- comment: Comentario del cliente.
+- date: Fecha de la reseña.
+
+4. Reservas
+
+Colección: reservations
+Documento: {reservationId}
+Campos:
+- clientId: ID del cliente que realiza la reserva.
+- serviceId: ID del servicio reservado.
+- reservationDate: Fecha y hora de la reserva.
+- shiftId: ID del turno asociado.
+- status: Estado de la reserva (pendiente, confirmada, cancelada, completada).
+
+5. Reseñas
+
+Colección: reviews
+Documento: {reviewId}
+Campos:
+- serviceId: ID del servicio reseñado.
+- clientId: ID del cliente que deja la reseña.
+- calification: Calificación numérica.
+- comment: Comentario del cliente.
+- date: Fecha de la reseña.
+
+6. Notificaciones
+
+Colección: notifications
+Documento: {notificationId}
+Campos:
+- userId: ID del usuario que recibe la notificación.
+- message: Contenido de la notificación.
+- notificationType: Tipo de notificación (nueva reserva, confirmación de reserva, cancelación de reserva, recordatorio de reserva, nueva reseña, vista de perfil, confirmación de pago).
+- date: Fecha de la notificación.
+- status: Estado de la notificación (leída, no leída).
+
+7. Disponibilidad
+
+Colección: availability
+Documento: {availabilityId}
+Campos:
+- day: Fecha del día de disponibilidad.
+- shifts: Lista de turnos disponibles.
+
+_ Subcolección: shifts
+
+Documento: {shiftId}
+Campos:
+- start: Hora de inicio del turno.
+- end: Hora de fin del turno.
+- length: Duración del turno.
+- serviceId: ID del servicio asociado.
+
+8. Calendario
+
+Colección: calendars
+Documento: {calendarId}
+Campos:
+- clientId: ID del cliente.
+- professionalId: ID del profesional.
 
 ____________________________________________________________________________________________________________________
 
