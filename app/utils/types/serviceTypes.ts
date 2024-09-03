@@ -5,13 +5,13 @@ export interface Service {
   id: string;
   title: string;
   description: string;
-  paymentMethod: PaymentMethod;
-  priceType: PriceType;
-  paymentType: PaymentType;
+  paymentMethod: PaymentMethod | '';
+  priceType: PriceType | '';
+  paymentType: PaymentType | '';
   professionalId: string;
   category: string;
   requiredInformation?: string;
-  serviceLocationModality: ServiceLocationModality;
+  serviceLocationModality: ServiceLocationModality | '';
   portfolio?: string[];
   reviews: Review[];
 }
