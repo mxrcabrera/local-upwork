@@ -4,12 +4,12 @@ import { getFirestore, } from "firebase/firestore";
 
 // Load .env variables
 const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    apiKey: "AIzaSyCiO0JxVkh3_riQ3oxBx0Bn0FXmo-4kLkU",
+    authDomain: "local-upwork.firebaseapp.com",
+    projectId: "local-upwork",
+    storageBucket: "local-upwork.appspot.com",
+    messagingSenderId: "1094778673672",
+    appId: "1:1094778673672:web:a3426015efa6b1d7618fbd",
 };
 
 const firebaseApp =
@@ -17,4 +17,6 @@ const firebaseApp =
 
 export const firebaseDB = getFirestore(firebaseApp);
 export const firebaseAuth = getAuth(firebaseApp);
+
+
 

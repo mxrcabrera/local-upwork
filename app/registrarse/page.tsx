@@ -4,11 +4,14 @@ import { signInWithGoogle } from '../libs/firebase/auth';
 import { createSession } from '../actions/auth-actions';
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
+import { registerWithEmail } from '../libs/firebase/auth';
+import Link from 'next/link';
 
 export default function Ingreso() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [repeatedPassword, setRepeatedPassword] = useState('')
+    const [error, setError] = useState('')
 
     const handleGoogleSignIn = async () => {
         const userUid = await signInWithGoogle();
@@ -18,10 +21,12 @@ export default function Ingreso() {
     };
 
     const handleEmailSignUp = async () => {
-        // const userUid = await signInWithGoogle();
-        // if (userUid) {
-        //     await createSession(userUid);
-        // }
+        const result = await registerWithEmail(email, password);
+        if (result.uid) {
+            await createSession(result.uid);
+        } else {
+            setError(result.message)
+        }
     };
 
     return (
@@ -43,20 +48,30 @@ export default function Ingreso() {
                     </span>
                     <hr className="w-full border-gray-300 dark:border-gray-700" />
                 </div>
-                <form onSubmit={handleEmailSignUp} className="space-y-6">
+                <div className="space-y-6">
 
                     <TextField id="email" type='email' fullWidth required label="Correo Electrónico" variant="outlined" value={email} onChange={e => setEmail(e.target.value)} />
-                    <TextField fullWidth required type='password' id="password" label="Contraseña" variant="outlined" value={password} onChange={e => setPassword(e.target.value)} />
-                    <TextField fullWidth required type='password' id="repeated-password" label="Repite la contraseña" variant="outlined" value={repeatedPassword} onChange={e => setRepeatedPassword(e.target.value)} />
+                    <TextField fullWidth required type='password' id="password" label="Contraseña" variant="outlined" value={password} onChange={e => setPassword(e.target.value)}  error={password.length < 8} helperText={password.length < 8 ? 'La contraseña debe tener como mínimo 8 caracteres' : ''} />
+
+                    <TextField fullWidth required type='password' id="repeated-password" label="Repite la contraseña" variant="outlined" value={repeatedPassword} onChange={e => setRepeatedPassword(e.target.value)}  error={password !== repeatedPassword} helperText={password !== repeatedPassword ? 'Las contraseñas no coinciden' : ''} />
 
                     <button
-                        type="submit"
+                        onClick={() => handleEmailSignUp()}
                         className="disabled:bg-gray-200 disabled:text-gray-400 w-full py-2 px-4 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-800"
-                        disabled={password === '' || password !== repeatedPassword || email === ''}
+                        disabled={password === '' || password !== repeatedPassword || email === '' || password.length < 8}
                     >
                         Regístrate
                     </button>
-                </form>
+
+                    <p className='className="text-sm text-gray-500 dark:text-gray-400"'>¿Ya tienes una cuenta? <Link className='hover:underline' href={"/ingresar"}>Ingresa</Link></p>
+
+                    {error && (
+                        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                            <p>{error}</p>
+                        </div>
+                    )}
+
+                </div>
             </div>
         </div>
     );
