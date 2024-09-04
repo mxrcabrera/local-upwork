@@ -1,6 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 
 export type Shift = {
+    id: string;
     shiftId: string;
     start: string;
     end: string;
@@ -10,6 +11,7 @@ export type Shift = {
 };
 
 export type Availability = {
+    id: string;
     day: Timestamp;
     shifts: Shift[];
 };

@@ -1,4 +1,4 @@
-import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc, Timestamp } from "firebase/firestore";
+import { collection, doc, getDoc, addDoc, getDocs, Timestamp } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
 import { User } from '../types/userTypes';
 import { UserType } from '../types/enums';
@@ -52,5 +52,55 @@ export async function getUsers(): Promise<User[]> {
   } catch (e) {
     console.error("Error al obtener los usuarios: ", e);
     return [];
+  }
+}
+
+// Get Professional Users
+export async function getProfessionalUsers(): Promise<User[]> {
+  try {
+    const allUsers = await getUsers();
+    return allUsers.filter(user => user.userType === UserType.PROFESSIONAL);
+  } catch (e) {
+    console.error("Error al obtener los usuarios profesionales: ", e);
+    return [];
+  }
+}
+
+// Get User Profile by User ID
+export async function getUserProfile(userId: string): Promise<User | null> {
+  try {
+    const userDocRef = doc(firebaseDB, 'usuarios', userId);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+      const userData = {
+        id: userDoc.id,
+        ...data,
+        registerDate: data.registerDate instanceof Timestamp ? data.registerDate : Timestamp.fromDate(new Date(data.registerDate)),
+        lastLoginDate: data.lastLoginDate instanceof Timestamp ? data.lastLoginDate : Timestamp.fromDate(new Date(data.lastLoginDate))
+      };
+      if (isUser(userData)) {
+        return userData;
+      }
+    }
+    return null;
+  } catch (e) {
+    console.error("Error al obtener el perfil del usuario: ", e);
+    return null;
+  }
+}
+
+// Get Professional Profile by User ID
+export async function getProfessionalProfile(userId: string): Promise<any | null> {
+  try {
+    const professionalDocRef = doc(firebaseDB, 'professionalProfiles', userId);
+    const professionalDoc = await getDoc(professionalDocRef);
+    if (professionalDoc.exists()) {
+      return professionalDoc.data();
+    }
+    return null;
+  } catch (e) {
+    console.error("Error al obtener el perfil profesional: ", e);
+    return null;
   }
 }

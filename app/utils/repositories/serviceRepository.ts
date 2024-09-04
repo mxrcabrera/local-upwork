@@ -4,9 +4,9 @@ import { Service, Review } from "../types/serviceTypes";
 import { v4 as uuidv4 } from 'uuid';
 
 // Create Service
-export async function createService(serviceData: Service): Promise<Service | null> {
+export async function createService(serviceData: Omit<Service, 'id'>): Promise<Service | null> {
   try {
-    const serviceWithId = { ...serviceData, id: uuidv4() };
+    const serviceWithId = { ...serviceData, id: uuidv4() }; // Generar el ID aquí
     const docRef = await addDoc(collection(firebaseDB, "services"), serviceWithId);
     console.log("Servicio creado con éxito");
     return { ...serviceWithId, id: docRef.id };

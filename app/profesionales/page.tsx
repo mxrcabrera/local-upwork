@@ -3,8 +3,10 @@ import ProfessionalProfilesComponent from '../components/professionalProfile/Pro
 
 const ProfessionalProfilesPage: React.FC = () => {
   return (
-    <div className="container mx-auto">
-      <ProfessionalProfilesComponent />
+    <div className="p-6 min-h-screen bg-gray-900 text-white">
+      <div className="container mx-auto">
+        <ProfessionalProfilesComponent />
+      </div>
     </div>
   );
 };

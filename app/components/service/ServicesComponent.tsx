@@ -1,15 +1,26 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Grid, Card, CardContent, CardActions, Button } from '@mui/material';
 import { getServices, createService, updateService, deleteService } from '../../utils/repositories/serviceRepository';
 import { Service } from '../../utils/types/serviceTypes';
-import { PaymentMethod, PriceType, PaymentType, ServiceLocationModality } from '../../utils/types/enums';
+import { PaymentMethod, PriceType, ServiceLocationModality } from '../../utils/types/enums';
 import { useEntityState } from '../../utils/hooks/useEntityState';
 import EntityForm from '../forms/EntityForm';
+import { fetchUserProfileType } from '../../libs/firebase/auth';
 
 const ServicesListComponent: React.FC = () => {
   const [state, dispatch] = useEntityState<Service>();
+  const [professionalId, setProfessionalId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Obtener el professionalId al montar el componente
+    fetchUserProfileType().then(({ professionalId }) => {
+      setProfessionalId(professionalId);
+    }).catch(error => {
+      console.error("Error fetching professional ID:", error);
+    });
+  }, []);
 
   const fetchServices = async () => {
     try {
@@ -27,17 +38,24 @@ const ServicesListComponent: React.FC = () => {
     fetchServices();
   }, [dispatch]);
 
-  const handleSubmit = async (data: Service) => {
+  const handleSubmit = async (data: Omit<Service, 'id' | 'professionalId'>) => {
+    if (!professionalId) {
+      console.error("No se encontró el ID del profesional.");
+      return;
+    }
+  
     try {
+      const serviceData = { ...data, professionalId }; // Asociar el professionalId automáticamente
+  
       if (state.showCreateForm) {
-        const createdService = await createService(data);
+        const createdService = await createService(serviceData); // Llamar sin 'id'
         if (createdService) {
           await fetchServices();
         } else {
           console.error("Error: No se pudo crear el servicio.");
         }
       } else if (state.showEditForm && state.currentEntity) {
-        const success = await updateService(state.currentEntity.id, data);
+        const success = await updateService(state.currentEntity.id, serviceData);
         if (success) {
           await fetchServices();
         } else {
@@ -138,46 +156,46 @@ const ServicesListComponent: React.FC = () => {
           </div>
         </DialogTitle>
         <DialogContent className="bg-gray-800">
-        <EntityForm
-          defaultValues={state.currentEntity || {
-            id: '',
-            title: '',
-            description: '',
-            paymentMethod: '',
-            priceType: '',
-            paymentType: '',
-            professionalId: '',
-            category: '',
-            requiredInformation: '',
-            serviceLocationModality: '',
-            portfolio: [],
-            reviews: []
-          }}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            dispatch({ type: 'SHOW_CREATE_FORM', payload: false });
-            dispatch({ type: 'SHOW_EDIT_FORM', payload: false });
-          }}
-          fields={[
-            { name: 'title', label: 'Título del Servicio', type: 'text' },
-            { name: 'description', label: 'Descripción del Servicio', type: 'text' },
-            { name: 'paymentMethod', label: 'Método de Pago', type: 'select', options: [
-              { value: PaymentMethod.PER_HOUR, label: 'Por Hora' },
-              { value: PaymentMethod.PER_PROJECT, label: 'Por Proyecto' }
-            ]},
-            { name: 'priceType', label: 'Tipo de Precio', type: 'select', options: [
-              { value: PriceType.FIXED, label: 'Fijo' },
-              { value: PriceType.RANGE, label: 'Rango' },
-              { value: PriceType.TO_BE_DEFINED, label: 'A Definir' }
-            ]},
-            { name: 'serviceLocationModality', label: 'Modalidad de Servicio', type: 'select', options: [
-              { value: ServiceLocationModality.HOME_DELIVERY, label: 'A Domicilio' },
-              { value: ServiceLocationModality.REMOTE, label: 'Remoto' },
-              { value: ServiceLocationModality.PHYSICAL_COMMERCE, label: 'Comercio Físico' }
-            ]},
-            { name: 'category', label: 'Categoría', type: 'text' },
-          ]}
-        />
+          <EntityForm
+            defaultValues={state.currentEntity || {
+              id: '',
+              title: '',
+              description: '',
+              paymentMethod: '',
+              priceType: '',
+              paymentType: '',
+              professionalId: '',
+              category: '',
+              requiredInformation: '',
+              serviceLocationModality: '',
+              portfolio: [],
+              reviews: []
+            }}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              dispatch({ type: 'SHOW_CREATE_FORM', payload: false });
+              dispatch({ type: 'SHOW_EDIT_FORM', payload: false });
+            }}
+            fields={[
+              { name: 'title', label: 'Título del Servicio', type: 'text' },
+              { name: 'description', label: 'Descripción del Servicio', type: 'text' },
+              { name: 'paymentMethod', label: 'Método de Pago', type: 'select', options: [
+                { value: PaymentMethod.PER_HOUR, label: 'Por Hora' },
+                { value: PaymentMethod.PER_PROJECT, label: 'Por Proyecto' }
+              ]},
+              { name: 'priceType', label: 'Tipo de Precio', type: 'select', options: [
+                { value: PriceType.FIXED, label: 'Fijo' },
+                { value: PriceType.RANGE, label: 'Rango' },
+                { value: PriceType.TO_BE_DEFINED, label: 'A Definir' }
+              ]},
+              { name: 'serviceLocationModality', label: 'Modalidad de Servicio', type: 'select', options: [
+                { value: ServiceLocationModality.HOME_DELIVERY, label: 'A Domicilio' },
+                { value: ServiceLocationModality.REMOTE, label: 'Remoto' },
+                { value: ServiceLocationModality.PHYSICAL_COMMERCE, label: 'Comercio Físico' }
+              ]},
+              { name: 'category', label: 'Categoría', type: 'text' },
+            ]}
+          />
         </DialogContent>
       </Dialog>
       <Dialog open={!!state.entityToDelete} onClose={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null })}>

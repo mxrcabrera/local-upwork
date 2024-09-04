@@ -9,7 +9,7 @@ type State<T> = {
   entityToDelete: string | null;
 };
 
-type Action<T> =
+type Action<T> = 
   | { type: 'SET_ENTITIES'; payload: T[] }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SHOW_CREATE_FORM'; payload: boolean }
