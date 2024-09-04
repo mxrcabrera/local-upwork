@@ -1,18 +1,17 @@
 "use client"
 
-import { useUserContext } from '../components/providers/UserProvider';
-import { useUserSession } from '../hooks/useUserSession';
-import { signInWithGoogle, signOutWithGoogle } from '../libs/firebase/auth';
-import { createSession, removeSession } from '../actions/auth-actions';
+import { signInWithGoogle } from '../libs/firebase/auth';
+import { createSession } from '../actions/auth-actions';
 import TextField from '@mui/material/TextField';
 import { useState } from 'react';
+import { signInWithEmail } from '../libs/firebase/auth';
+import Link from 'next/link';
 
 export default function Ingreso() {
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const { session } = useUserContext();
-    const userSessionId = useUserSession(session);
+    const [error, setError] = useState('')
 
     const handleGoogleSignIn = async () => {
         const userUid = await signInWithGoogle();
@@ -22,15 +21,12 @@ export default function Ingreso() {
     };
 
     const handleEmailSignIn = async () => {
-        // const userUid = await signInWithGoogle();
-        // if (userUid) {
-        //     await createSession(userUid);
-        // }
-    };
-
-    const handleSignOut = async () => {
-        await signOutWithGoogle();
-        await removeSession();
+        const result = await signInWithEmail(email, password);
+        if (result.uid) {
+            await createSession(result.uid);
+        } else {
+            setError(result.message)
+        }
     };
 
     // if (!userSessionId) {
@@ -60,19 +56,28 @@ export default function Ingreso() {
                     </span>
                     <hr className="w-full border-gray-300 dark:border-gray-700" />
                 </div>
-                <form onSubmit={handleEmailSignIn} className="space-y-6">
+                <div className="space-y-6">
 
                     <TextField id="email" type='email' fullWidth required label="Correo Electrónico" variant="outlined" value={email} onChange={e => setEmail(e.target.value)} />
                     <TextField fullWidth required type='password' id="password" label="Contraseña" variant="outlined" value={password} onChange={e => setPassword(e.target.value)} />
 
                     <button
-                        type="submit"
+                        onClick={() => handleEmailSignIn()}
                         className="disabled:bg-gray-200 disabled:text-gray-400 w-full py-2 px-4 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 dark:focus:ring-offset-gray-800"
                         disabled={password === '' || email === ''}
                     >
                         Ingresa
                     </button>
-                </form>
+
+                    <p className="text-sm text-gray-500 dark:text-gray-400">¿No tienes una cuenta? <Link className='hover:underline' href="/registrarse">Regístrate</Link></p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">¿Olvidaste tu contraseña? <Link className='hover:underline' href="/recuperar-clave">Recuperar contraseña</Link></p>
+
+                    {error && (
+                        <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                            <p>{error}</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -4,11 +4,22 @@ import {
   signInWithPopup,
   onAuthStateChanged as _onAuthStateChanged,
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from 'firebase/auth';
+
 import { firebaseAuth } from './config';
-import { getUserProfile, getProfessionalProfile } from '../../utils/repositories/userRepository';
-import { UserType } from '../../utils/types/enums';
+import { removeSession } from '@/app/actions/auth-actions';
+
+export enum AUTH_ERROR_CODES {
+  UNKNOWN_ERROR = 'auth/unknown-error',
+  TOO_MANY_REQUESTS = 'auth/too-many-requests',
+  USER_NOT_FOUND = 'auth/user-not-found',
+  INVALID_CREDENTIALS = 'auth/invalid-credential',
+  OPERATION_NOT_ALLOWED = 'auth/operation-not-allowed',
+  INTERNAL_ERROR = 'auth/internal-error',
+  EMAIL_ALREADY_IN_USE = 'auth/email-already-in-use',
+}
 
 export function onAuthStateChanged(callback: (authUser: User | null) => void) {
   return _onAuthStateChanged(firebaseAuth, callback);
@@ -29,9 +40,10 @@ export async function signInWithGoogle() {
   }
 }
 
-export async function signOutWithGoogle() {
+export async function signOut() {
   try {
     await firebaseAuth.signOut();
+    removeSession()
   } catch (error) {
     console.error('Error signing out with Google', error);
   }
@@ -40,40 +52,56 @@ export async function signOutWithGoogle() {
 export async function registerWithEmail(email: string, password: string) {
   try {
     const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
-    return userCredential.user.uid;
-  } catch (error) {
-    console.error('Error registering with email', error);
+    return { errorCode: '', message: 'Inicio de sesión exitoso', uid: userCredential.user.uid }
+
+  } catch (error: any) {
+
+    if (error.code === AUTH_ERROR_CODES.EMAIL_ALREADY_IN_USE) {
+      return ({ errorCode: AUTH_ERROR_CODES.EMAIL_ALREADY_IN_USE, message: 'El correo electrónico ya está registrado', uid: null })
+
+    } else if (error.code === AUTH_ERROR_CODES.TOO_MANY_REQUESTS) {
+      return ({ errorCode: AUTH_ERROR_CODES.TOO_MANY_REQUESTS, message: 'Demasiados intentos de registro seguidos. Por favor, inténtalo más tarde.', uid: null })
+
+    }
+    else {
+      return ({ errorCode: AUTH_ERROR_CODES.UNKNOWN_ERROR, message: 'Error desconocido', uid: null })
+
+    }
   }
 }
 
 export async function signInWithEmail(email: string, password: string) {
   try {
     const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
-    return userCredential.user.uid;
-  } catch (error) {
-    console.error('Error signing in with email', error);
+    return { errorCode: '', message: 'Inicio de sesión exitoso', uid: userCredential.user.uid }
+
+  } catch (error: any) {
+
+    if (error.code === AUTH_ERROR_CODES.INVALID_CREDENTIALS) {
+      return ({ errorCode: AUTH_ERROR_CODES.INVALID_CREDENTIALS, message: 'Correo electrónico o contraseña incorrectos', uid: null })
+
+    } else if (error.code === AUTH_ERROR_CODES.TOO_MANY_REQUESTS) {
+      return ({ errorCode: AUTH_ERROR_CODES.TOO_MANY_REQUESTS, message: 'Demasiados intentos de inicio de sesión. Por favor, inténtalo más tarde.', uid: null })
+
+    } else if (error.code === AUTH_ERROR_CODES.USER_NOT_FOUND) {
+      return ({ errorCode: AUTH_ERROR_CODES.USER_NOT_FOUND, message: 'El usuario no existe', uid: null })
+
+    } else {
+      return ({ errorCode: AUTH_ERROR_CODES.UNKNOWN_ERROR, message: 'Error desconocido', uid: null })
+
+    }
   }
 }
 
-export async function fetchUserProfileType() {
+
+export async function recoverPassword(email: string) {
   try {
-    const user = await new Promise<User | null>((resolve) => {
-      onAuthStateChanged((user) => resolve(user));
-    });
+    await sendPasswordResetEmail(firebaseAuth, email);
+    return { errorCode: '', message: 'En caso de que el email exista, se ha enviado un correo electrónico para restablecer tu contraseña', uid: null }
 
-    if (user) {
-      const userProfile = await getUserProfile(user.uid);
-      const professionalProfile = await getProfessionalProfile(user.uid);
+  } catch (error: any) {
+    alert('Hubo un error al enviar el correo de recuperación. Por favor, verifica tu dirección de correo electrónico.')
 
-      const clientId = userProfile && userProfile.userType === UserType.CLIENT ? user.uid : null;
-      const professionalId = professionalProfile ? professionalProfile.id : null;
-
-      return { clientId, professionalId };
-    } else {
-      return { clientId: null, professionalId: null };
-    }
-  } catch (error) {
-    console.error('Error fetching user profiles:', error);
-    throw error;
+    return { errorCode: AUTH_ERROR_CODES.UNKNOWN_ERROR, message: 'Error desconocido', uid: null }
   }
 }
