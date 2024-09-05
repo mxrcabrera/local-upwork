@@ -2,70 +2,91 @@
 
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Grid, Card, CardContent, CardActions, Button } from '@mui/material';
-import { getServices, createService, updateService, deleteService } from '../../utils/repositories/serviceRepository';
+import { getProfessionalServicesList, getServicesList, createService, updateService, deleteService } from '../../utils/repositories/serviceRepository';
 import { Service } from '../../utils/types/serviceTypes';
 import { PaymentMethod, PriceType, ServiceLocationModality } from '../../utils/types/enums';
 import { useEntityState } from '../../utils/hooks/useEntityState';
 import EntityForm from '../forms/EntityForm';
-import { fetchUserProfileType } from '../../libs/firebase/auth';
+import { useUser } from '../../hooks/useUser';
+import { fetchUserProfile } from '../../libs/firebase/auth';
 
 const ServicesListComponent: React.FC = () => {
   const [state, dispatch] = useEntityState<Service>();
   const [professionalId, setProfessionalId] = useState<string | null>(null);
+  const user = useUser(null);
 
   useEffect(() => {
-    // Obtener el professionalId al montar el componente
-    fetchUserProfileType().then(({ professionalId }) => {
-      setProfessionalId(professionalId);
-    }).catch(error => {
-      console.error("Error fetching professional ID:", error);
-    });
-  }, []);
-
-  const fetchServices = async () => {
-    try {
-      const fetchedServices = await getServices();
-      const sortedServices = fetchedServices.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
-      dispatch({ type: 'SET_ENTITIES', payload: sortedServices });
-    } catch (error) {
-      console.error("Error al obtener los servicios:", error);
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+    if (user) {
+      console.log("User UID:", user.uid);
+    } else {
+      console.log("No user is logged in.");
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    fetchServices();
-  }, [dispatch]);
+    const fetchProfileAndServices = async () => {
+      try {
+        console.log("User:", user); // Log para verificar el estado del usuario
+        if (user?.uid) {
+          // Usuario logueado
+          const profile = await fetchUserProfile(user.uid);
+          console.log("User UID:", user.uid);
+          console.log("Profile:", profile); // Log para verificar el perfil
+          if (profile?.professionalId) {
+            setProfessionalId(profile.professionalId);
+            const services = await getProfessionalServicesList(profile.professionalId);
+            console.log("Professional Services:", services); // Log para verificar los servicios del profesional
+            const sortedServices = services.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+            dispatch({ type: 'SET_ENTITIES', payload: sortedServices });
+          }
+        } else {
+          // Usuario no logueado
+          const services = await getServicesList();
+          console.log("All Services:", services); // Log para verificar todos los servicios
+          const sortedServices = services.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+          dispatch({ type: 'SET_ENTITIES', payload: sortedServices });
+        }
+      } catch (error) {
+        console.error("Error al obtener los servicios:", error);
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
+    };
+  
+    fetchProfileAndServices();
+  }, [user, dispatch]);
 
   const handleSubmit = async (data: Omit<Service, 'id' | 'professionalId'>) => {
     if (!professionalId) {
       console.error("No se encontró el ID del profesional.");
       return;
     }
-  
+
+    const serviceData = { ...data, professionalId };
+
     try {
-      const serviceData = { ...data, professionalId }; // Asociar el professionalId automáticamente
-  
       if (state.showCreateForm) {
-        const createdService = await createService(serviceData); // Llamar sin 'id'
+        const createdService = await createService(serviceData);
         if (createdService) {
-          await fetchServices();
+          const updatedServices = await getProfessionalServicesList(professionalId);
+          dispatch({ type: 'SET_ENTITIES', payload: updatedServices });
         } else {
           console.error("Error: No se pudo crear el servicio.");
         }
       } else if (state.showEditForm && state.currentEntity) {
         const success = await updateService(state.currentEntity.id, serviceData);
         if (success) {
-          await fetchServices();
+          const updatedServices = await getProfessionalServicesList(professionalId);
+          dispatch({ type: 'SET_ENTITIES', payload: updatedServices });
         } else {
           console.error("Error: No se pudo actualizar el servicio.");
         }
       }
-      dispatch({ type: 'SHOW_CREATE_FORM', payload: false });
-      dispatch({ type: 'SHOW_EDIT_FORM', payload: false });
     } catch (error) {
       console.error("Error al procesar el servicio:", error);
+    } finally {
+      dispatch({ type: 'SHOW_CREATE_FORM', payload: false });
+      dispatch({ type: 'SHOW_EDIT_FORM', payload: false });
     }
   };
 
@@ -81,12 +102,15 @@ const ServicesListComponent: React.FC = () => {
 
   const handleDelete = async () => {
     if (state.entityToDelete) {
-      await deleteService(state.entityToDelete);
-      dispatch({
-        type: 'SET_ENTITIES',
-        payload: state.entities.filter(entity => entity.id !== state.entityToDelete),
-      });
-      dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null });
+      try {
+        await deleteService(state.entityToDelete);
+        const updatedEntities = state.entities.filter(entity => entity.id !== state.entityToDelete);
+        dispatch({ type: 'SET_ENTITIES', payload: updatedEntities });
+      } catch (error) {
+        console.error("Error al eliminar el servicio:", error);
+      } finally {
+        dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null });
+      }
     }
   };
 
@@ -109,9 +133,15 @@ const ServicesListComponent: React.FC = () => {
             Cargando servicios...
           </Typography>
         ) : state.entities.length === 0 ? (
-          <Typography variant="h6" color="textSecondary" align="center">
-            No hay servicios disponibles en este momento.
-          </Typography>
+          professionalId ? (
+            <Typography variant="h6" color="textSecondary" align="center">
+              No tienes servicios asociados.
+            </Typography>
+          ) : (
+            <Typography variant="h6" color="textSecondary" align="center">
+              No hay servicios disponibles en este momento.
+            </Typography>
+          )
         ) : (
           state.entities.map((service: Service) => (
             <Grid item xs={12} sm={6} md={4} key={service.id}>
@@ -152,7 +182,7 @@ const ServicesListComponent: React.FC = () => {
       >
         <DialogTitle className="bg-gray-800">
           <div className="text-3xl font-bold text-center bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
-            <p className="mt-8">{state.showCreateForm ? 'Crear Servicio' : 'Editar Servicio'}</p>
+            {state.showCreateForm ? 'Crear Servicio' : 'Editar Servicio'}
           </div>
         </DialogTitle>
         <DialogContent className="bg-gray-800">
@@ -163,11 +193,8 @@ const ServicesListComponent: React.FC = () => {
               description: '',
               paymentMethod: '',
               priceType: '',
-              paymentType: '',
-              professionalId: '',
-              category: '',
-              requiredInformation: '',
               serviceLocationModality: '',
+              category: '',
               portfolio: [],
               reviews: []
             }}
@@ -199,19 +226,13 @@ const ServicesListComponent: React.FC = () => {
         </DialogContent>
       </Dialog>
       <Dialog open={!!state.entityToDelete} onClose={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null })}>
-        <DialogTitle className="text-white">Confirmar Eliminación</DialogTitle>
+        <DialogTitle>Borrar Servicio</DialogTitle>
         <DialogContent>
-          <Typography className="text-white">
-            ¿Estás seguro de que deseas eliminar este servicio?
-          </Typography>
+          <Typography>¿Estás seguro de que deseas borrar este servicio?</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDelete} className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
-            Eliminar
-          </Button>
-          <Button onClick={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null })} className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded">
-            Cancelar
-          </Button>
+          <Button onClick={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null })}>Cancelar</Button>
+          <Button onClick={handleDelete} color="secondary">Borrar</Button>
         </DialogActions>
       </Dialog>
     </div>

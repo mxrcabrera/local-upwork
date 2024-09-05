@@ -1,4 +1,4 @@
-import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
 import { Service, Review } from "../types/serviceTypes";
 import { v4 as uuidv4 } from 'uuid';
@@ -6,22 +6,22 @@ import { v4 as uuidv4 } from 'uuid';
 // Create Service
 export async function createService(serviceData: Omit<Service, 'id'>): Promise<Service | null> {
   try {
-    const serviceWithId = { ...serviceData, id: uuidv4() }; // Generar el ID aquí
+    const serviceWithId = { ...serviceData, id: uuidv4() };
     const docRef = await addDoc(collection(firebaseDB, "services"), serviceWithId);
     console.log("Servicio creado con éxito");
     return { ...serviceWithId, id: docRef.id };
   } catch (e) {
     console.error("Error al crear el servicio: ", e);
-    return null; // Devuelve null en caso de error
+    return null;
   }
 }
 
-// Get Services
-export async function getServices() {
+// Get All Services
+export async function getServicesList(): Promise<Service[]> {
   try {
     const servicesQuery = query(
       collection(firebaseDB, "services"),
-      orderBy("title") // Ordena por el campo 'title'
+      orderBy("title")
     );
     const querySnapshot = await getDocs(servicesQuery);
     return querySnapshot.docs.map(doc => {
@@ -40,27 +40,27 @@ export async function getServices() {
   }
 }
 
-// Get Service by ID
-export async function getServiceById(serviceId: string) {
+// Get Services by Professional
+export async function getProfessionalServicesList(professionalId: string): Promise<Service[]> {
   try {
-    const serviceRef = doc(firebaseDB, "services", serviceId);
-    const serviceSnap = await getDoc(serviceRef);
-    if (serviceSnap.exists()) {
-      const data = serviceSnap.data() as Service;
+    const servicesQuery = query(
+      collection(firebaseDB, "services"),
+      where("professionalId", "==", professionalId)
+    );
+    const querySnapshot = await getDocs(servicesQuery);
+    return querySnapshot.docs.map(doc => {
+      const data = doc.data() as Service;
       return {
         ...data,
-        id: serviceSnap.id,
-        reviews: data.reviews.map((review: Review) => ({
+        id: doc.id,
+        reviews: Array.isArray(data.reviews) ? data.reviews.map(review => ({
           ...review,
-        }))
+        })) : []
       };
-    } else {
-      console.log("No se encontró el servicio");
-      return null;
-    }
+    });
   } catch (e) {
-    console.error("Error al obtener el servicio: ", e);
-    return null;
+    console.error("Error al obtener los servicios del profesional: ", e);
+    return [];
   }
 }
 
@@ -70,15 +70,15 @@ export async function updateService(serviceId: string, updatedData: Partial<Serv
     const serviceRef = doc(firebaseDB, "services", serviceId);
     await updateDoc(serviceRef, updatedData);
     console.log("Servicio actualizado con éxito");
-    return true; // Devuelve true si la actualización fue exitosa
+    return true;
   } catch (e) {
     console.error("Error al actualizar el servicio: ", e);
-    return false; // Devuelve false si hubo un error
+    return false;
   }
 }
 
 // Delete Service
-export async function deleteService(serviceId: string) {
+export async function deleteService(serviceId: string): Promise<void> {
   try {
     const serviceRef = doc(firebaseDB, "services", serviceId);
     await deleteDoc(serviceRef);

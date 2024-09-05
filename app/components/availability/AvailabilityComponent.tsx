@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Button, Grid, Card, CardContent, CardActions, TextField } from '@mui/material';
 import { getAvailability, createAvailability, updateAvailability, deleteAvailability } from '../../utils/repositories/availabilityRepository';
-import { getServices } from '../../utils/repositories/serviceRepository';
+import { getServicesList } from '../../utils/repositories/serviceRepository';
 import { Availability, Shift } from '../../utils/types/availabilityTypes';
 import { Service } from '@/app/utils/types/serviceTypes';
 import { useEntityState } from '../../utils/hooks/useEntityState';
@@ -13,24 +13,34 @@ import { v4 as uuidv4 } from 'uuid';
 import { Timestamp } from 'firebase/firestore';
 import dayjs, { Dayjs } from 'dayjs';
 import { TimePicker } from '@mui/x-date-pickers';
-import { onAuthStateChanged } from '../../libs/firebase/auth';
+import { onAuthStateChanged, fetchUserProfile } from '../../libs/firebase/auth';
+import { UserType } from '@/app/utils/types/enums';
+import { User } from '@/app/utils/types/userTypes';
 
 interface AvailabilityComponentProps {
+  onChange: (date: Dayjs | null) => void;
   clientId: string;
   professionalId: string;
-  onChange: (date: Dayjs | null) => void;
 }
 
-const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId, professionalId, onChange }) => {
+const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange, clientId, professionalId }) => {
   const [state, dispatch] = useEntityState<Availability>();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userType, setUserType] = useState<UserType | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged((user) => {
+    const unsubscribe = onAuthStateChanged(async (user) => {
       if (user) {
         setIsAuthenticated(true);
+        const { clientId, professionalId } = await fetchUserProfile(user.uid);
+  
+        if (professionalId) {
+          setUserType(UserType.PROFESSIONAL);
+        } else if (clientId) {
+          setUserType(UserType.CLIENT);
+        }
       } else {
         setIsAuthenticated(false);
       }
@@ -60,14 +70,14 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
 
   const fetchServices = async () => {
     try {
-      const fetchedServices = await getServices();
+      const fetchedServices = await getServicesList();
       setServices(fetchedServices);
     } catch (error) {
       console.error("Error al obtener servicios:", error);
     }
   };
 
-  const handleSubmit = async (data: Omit<Availability, 'id' | 'professionalId'>) => {
+  const handleSubmit = async (data: Omit<Availability, 'id'>) => {
     if (!professionalId) {
       console.error("No se encontró el ID del profesional.");
       return;
@@ -81,10 +91,10 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
         end: dayjs(shift.end).format('HH:mm')
       }));
 
-      const availabilityData = {
+      const availabilityData: Availability = {
+        id: uuidv4(),
         day: Timestamp.fromDate(day.toDate()),
         shifts: formattedShifts,
-        professionalId
       };
 
       if (state.showCreateForm) {
@@ -121,12 +131,17 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
 
   const handleDelete = async () => {
     if (state.entityToDelete) {
-      await deleteAvailability(state.entityToDelete);
-      dispatch({
-        type: 'SET_ENTITIES',
-        payload: state.entities.filter(entity => entity.id !== state.entityToDelete),
-      });
-      dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null });
+      try {
+        await deleteAvailability(state.entityToDelete);
+        dispatch({
+          type: 'SET_ENTITIES',
+          payload: state.entities.filter(entity => entity.id !== state.entityToDelete),
+        });
+      } catch (error) {
+        console.error("Error al eliminar la disponibilidad:", error);
+      } finally {
+        dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null });
+      }
     }
   };
 
@@ -152,14 +167,16 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
       <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
         Disponibilidad
       </h1>
-      <div className="flex justify-end mb-6">
-        <Button
-          onClick={handleCreate}
-          className="bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
-        >
-          Nuevo Turno
-        </Button>
-      </div>
+      {userType === UserType.PROFESSIONAL && (
+        <div className="flex justify-end mb-6">
+          <Button
+            onClick={handleCreate}
+            className="bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
+          >
+            Nuevo Turno
+          </Button>
+        </div>
+      )}
       <Grid container spacing={3}>
         {state.loading ? (
           <Typography variant="h6" color="textSecondary" align="center">
@@ -185,14 +202,16 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
                     ))}
                   </Typography>
                 </CardContent>
-                <CardActions>
-                  <Button size="small" color="primary" onClick={() => handleEdit(availability)}>
-                    Editar
-                  </Button>
-                  <Button size="small" color="secondary" onClick={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: availability.id })}>
-                    Borrar
-                  </Button>
-                </CardActions>
+                {userType === UserType.PROFESSIONAL && (
+                  <CardActions>
+                    <Button size="small" color="primary" onClick={() => handleEdit(availability)}>
+                      Editar
+                    </Button>
+                    <Button size="small" color="secondary" onClick={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: availability.id })}>
+                      Borrar
+                    </Button>
+                  </CardActions>
+                )}
               </Card>
             </Grid>
           ))
@@ -213,7 +232,7 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
       >
         <DialogTitle className="bg-gray-800">
           <div className="text-3xl font-bold text-center bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
-            <p className="mt-8">{state.showCreateForm ? 'Crear Turno' : 'Editar Turno'}</p>
+            {state.showCreateForm ? 'Crear Turno' : 'Editar Turno'}
           </div>
         </DialogTitle>
         <DialogContent className="bg-gray-800">
@@ -221,11 +240,13 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
             defaultValues={state.currentEntity || {
               day: Timestamp.fromDate(new Date()),
               shifts: [{
+                id: uuidv4(),
                 shiftId: uuidv4(),
                 start: '',
                 end: '',
                 length: 0,
                 serviceId: '',
+                maxReservations: 0,
               }]
             }}
             onSubmit={handleSubmit}
@@ -234,7 +255,13 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
               dispatch({ type: 'SHOW_EDIT_FORM', payload: false });
             }}
             fields={[
-              { name: 'day', label: 'Fecha', type: 'custom', component: <CalendarComponent clientId={clientId || ''} professionalId={professionalId || ''} serviceId={state.currentEntity?.shifts[0]?.serviceId || ''} onChange={handleDateChange} /> },
+              { name: 'day', label: 'Fecha', type: 'custom', component: <CalendarComponent 
+                onChange={handleDateChange} 
+                clientId={clientId}
+                professionalId={professionalId}
+                serviceId={state.currentEntity?.shifts[0]?.serviceId || ''}
+                userType={userType!}
+              /> },
               { name: 'shifts[0].start', label: 'Hora de Inicio', type: 'custom', component: (
                 <TimePicker
                   label="Hora de Inicio"
@@ -288,8 +315,8 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ clientId,
           ]}
         />
       </DialogContent>
-    </Dialog>
-    <Dialog open={!!state.entityToDelete} onClose={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null })}>
+      </Dialog>
+      <Dialog open={!!state.entityToDelete} onClose={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null })}>
         <DialogTitle className="text-white">Confirmar Eliminación</DialogTitle>
         <DialogContent>
           <Typography className="text-white">

@@ -32,7 +32,7 @@ export async function getProfiles(): Promise<ProfessionalProfile[]> {
   try {
     const profilesQuery = query(
       collection(firebaseDB, "perfilesProfesionales"),
-      orderBy("userId") // Ensure alphabetical sorting by 'userId'
+      orderBy("userId")
     );
     const querySnapshot = await getDocs(profilesQuery);
     return querySnapshot.docs.map(doc => {

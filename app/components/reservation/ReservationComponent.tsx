@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getServices } from '../../utils/repositories/serviceRepository';
+import { getServicesList } from '../../utils/repositories/serviceRepository';
 import { createReservation } from '../../utils/repositories/reservationRepository';
 import dayjs, { Dayjs } from 'dayjs';
 import { Timestamp } from 'firebase/firestore';
@@ -19,8 +19,12 @@ const ReservaComponent: React.FC<ReservaProps> = ({ clientId, selectedDate, sele
 
   useEffect(() => {
     const loadServices = async () => {
-      const fetchedServices = await getServices();
-      setServices(fetchedServices);
+      try {
+        const fetchedServices = await getServicesList();
+        setServices(fetchedServices);
+      } catch (e) {
+        setError("Error al cargar los servicios. Por favor, inténtalo de nuevo.");
+      }
     };
     loadServices();
   }, []);
@@ -50,6 +54,7 @@ const ReservaComponent: React.FC<ReservaProps> = ({ clientId, selectedDate, sele
       <select
         value={selectedServiceId || ''}
         onChange={(e) => setSelectedServiceId(e.target.value)}
+        disabled={loading}
       >
         <option value="">Selecciona un servicio</option>
         {services.map((service) => 
@@ -60,7 +65,7 @@ const ReservaComponent: React.FC<ReservaProps> = ({ clientId, selectedDate, sele
           ) : null
         )}
       </select>
-      <button onClick={handleCreateReservation} disabled={loading}>
+      <button onClick={handleCreateReservation} disabled={loading || !selectedServiceId || !selectedDate || !selectedTime}>
         {loading ? "Creando..." : "Crear Reserva"}
       </button>
       {error && <p style={{ color: 'red' }}>{error}</p>}

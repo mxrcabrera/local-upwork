@@ -4,21 +4,27 @@ import React, { useEffect, useState } from 'react';
 import AvailabilityComponent from '../components/availability/AvailabilityComponent';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { fetchUserProfileType } from '../libs/firebase/auth'; // Asegúrate de importar la función correcta
-import { Dayjs } from 'dayjs'; // Importa Dayjs si no está ya importado
+import { fetchUserProfile, onAuthStateChanged } from '../libs/firebase/auth'; // Importa la función correcta
+import { Dayjs } from 'dayjs';
 
 const DisponibilidadPage: React.FC = () => {
   const [clientId, setClientId] = useState<string | null>(null);
   const [professionalId, setProfessionalId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Llama a fetchUserProfiles para obtener los IDs
-    fetchUserProfileType().then(({ clientId, professionalId }) => {
-      setClientId(clientId);
-      setProfessionalId(professionalId);
-    }).catch(error => {
-      console.error("Error fetching user profiles:", error);
+    const unsubscribe = onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const { clientId, professionalId } = await fetchUserProfile(user.uid);
+          setClientId(clientId);
+          setProfessionalId(professionalId);
+        } catch (error) {
+          console.error("Error fetching user profiles:", error);
+        }
+      }
     });
+
+    return () => unsubscribe();
   }, []);
 
   const handleDateChange = (date: Dayjs | null) => {
