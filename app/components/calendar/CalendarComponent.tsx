@@ -85,25 +85,25 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onChange, clientI
             <ul className="mt-2">
               {availability.map((availability: Availability) => (
                 availability.shifts
-                  .filter(shift => shift.length >= desiredDuration && shift.serviceId === serviceId)
-                  .map((shift, index) => (
-                    <li key={index} className="mt-1">
-                      <Button 
-                        onClick={() => handleTimeSelection(shift)} 
-                        className={`text-blue-500 hover:text-blue-600
-                          ${selectedShift?.shiftId === shift.shiftId ? 'bg-blue-200' : ''}`}
-                      >
-                        {shift.start} - {shift.end}
-                      </Button>
-                    </li>
-                  ))
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    </LocalizationProvider>
-  );
+                .filter(shift => shift.length >= desiredDuration && shift.serviceId === serviceId)
+                .map((shift, index) => (
+                  <li key={index} className="mt-1">
+                    <Button 
+                      onClick={() => handleTimeSelection(shift)} 
+                      className={`text-blue-500 hover:text-blue-600
+                        ${selectedShift?.shiftId === shift.shiftId ? 'bg-blue-200' : ''}`}
+                    >
+                      {shift.start} - {shift.end}
+                    </Button>
+                  </li>
+                ))
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </LocalizationProvider>
+);
 };
 
 export default CalendarComponent;
