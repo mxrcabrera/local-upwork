@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation'; // Cambiado a next/navigation
 import { Dayjs } from 'dayjs';
 import Calendar from '../components/calendar/CalendarComponent';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,11 +9,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { UserType } from '@/app/utils/types/enums';
 import { onAuthStateChanged, fetchUserProfile } from '../libs/firebase/auth';
 
-interface CalendarPageProps {
-  serviceId: string;
-}
-
-export default function CalendarPage({ serviceId }: CalendarPageProps) {
+const CalendarPage: React.FC = () => {
+  const { serviceId } = useParams(); // Obtener serviceId de la URL
   const [userType, setUserType] = useState<UserType | null>(null);
   const [clientId, setClientId] = useState<string | null>(null);
   const [professionalId, setProfessionalId] = useState<string | null>(null);
@@ -52,11 +50,13 @@ export default function CalendarPage({ serviceId }: CalendarPageProps) {
         <Calendar 
           clientId={clientId || ''} 
           professionalId={professionalId || ''}
-          serviceId={serviceId} // Pasar el serviceId al CalendarComponent
+          serviceId={serviceId as string} // Asegúrate de que serviceId sea una cadena
           onChange={handleDateChange}
-          userType={userType!} // Pasar el userType al CalendarComponent
+          userType={userType!} // Pass the userType to the CalendarComponent
         />
       </LocalizationProvider>
     </div>
   );
 }
+
+export default CalendarPage;

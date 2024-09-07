@@ -64,6 +64,31 @@ export async function getProfessionalServicesList(professionalId: string): Promi
   }
 }
 
+// Get Service by ID
+export async function getServiceByID(serviceId: string): Promise<Service | null> {
+  try {
+    const serviceRef = doc(firebaseDB, "services", serviceId);
+    const serviceSnap = await getDoc(serviceRef);
+
+    if (serviceSnap.exists()) {
+      const data = serviceSnap.data() as Service;
+      return {
+        ...data,
+        id: serviceSnap.id,
+        reviews: Array.isArray(data.reviews) ? data.reviews.map((review: Review) => ({
+          ...review,
+        })) : []
+      };
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (e) {
+    console.error("Error al obtener el servicio: ", e);
+    return null;
+  }
+}
+
 // Update Service
 export async function updateService(serviceId: string, updatedData: Partial<Service>): Promise<boolean> {
   try {

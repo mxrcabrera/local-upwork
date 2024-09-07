@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Cambiado a next/navigation
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, Grid, Card, CardContent, CardActions, Button } from '@mui/material';
 import { getProfessionalServicesList, getServicesList, createService, updateService, deleteService } from '../../utils/repositories/serviceRepository';
 import { Service } from '../../utils/types/serviceTypes';
@@ -14,6 +15,7 @@ const ServicesListComponent: React.FC = () => {
   const [state, dispatch] = useEntityState<Service>();
   const [professionalId, setProfessionalId] = useState<string | null>(null);
   const user = useUser(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (user) {
@@ -26,23 +28,16 @@ const ServicesListComponent: React.FC = () => {
   useEffect(() => {
     const fetchProfileAndServices = async () => {
       try {
-        console.log("User:", user); // Log para verificar el estado del usuario
         if (user?.uid) {
-          // Usuario logueado
           const profile = await fetchUserProfile(user.uid);
-          console.log("User UID:", user.uid);
-          console.log("Profile:", profile); // Log para verificar el perfil
           if (profile?.professionalId) {
             setProfessionalId(profile.professionalId);
             const services = await getProfessionalServicesList(profile.professionalId);
-            console.log("Professional Services:", services); // Log para verificar los servicios del profesional
             const sortedServices = services.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
             dispatch({ type: 'SET_ENTITIES', payload: sortedServices });
           }
         } else {
-          // Usuario no logueado
           const services = await getServicesList();
-          console.log("All Services:", services); // Log para verificar todos los servicios
           const sortedServices = services.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
           dispatch({ type: 'SET_ENTITIES', payload: sortedServices });
         }
@@ -52,7 +47,7 @@ const ServicesListComponent: React.FC = () => {
         dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
-  
+
     fetchProfileAndServices();
   }, [user, dispatch]);
 
@@ -145,7 +140,11 @@ const ServicesListComponent: React.FC = () => {
         ) : (
           state.entities.map((service: Service) => (
             <Grid item xs={12} sm={6} md={4} key={service.id}>
-              <Card sx={{ backgroundColor: '#424242', color: '#fff', height: 200 }}>
+              <Card
+                sx={{ backgroundColor: '#424242', color: '#fff', height: 200 }}
+                onClick={() => router.push(`/servicios/${service.id}`)}
+                className="cursor-pointer"
+              >
                 <CardContent>
                   <Typography variant="h5" component="div">
                     {service.title}
@@ -155,10 +154,10 @@ const ServicesListComponent: React.FC = () => {
                   </Typography>
                 </CardContent>
                 <CardActions>
-                  <Button size="small" color="primary" onClick={() => handleEdit(service)}>
+                  <Button size="small" color="primary" onClick={(e) => { e.stopPropagation(); handleEdit(service); }}>
                     Editar
                   </Button>
-                  <Button size="small" color="secondary" onClick={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: service.id })}>
+                  <Button size="small" color="secondary" onClick={(e) => { e.stopPropagation(); dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: service.id }); }}>
                     Borrar
                   </Button>
                 </CardActions>
