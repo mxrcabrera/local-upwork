@@ -1,17 +1,19 @@
 import { collection, addDoc, updateDoc, doc, Timestamp } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
-import { EstadoReserva } from '../../utils/types/enums';
+import { ReservationStatus } from '../../utils/types/enums';
+import { v4 as uuidv4 } from 'uuid';
 
 // Create Reservation
-export async function createReservation(clienteId: string, servicioId: string, fechaReserva: Timestamp, turnoId: string) {
+export async function createReservation(clientId: string, serviceId: string, reservationDate: Timestamp, shiftId: string) {
   try {
     const reservationRef = collection(firebaseDB, "reservas");
     await addDoc(reservationRef, {
-      clienteId,
-      servicioId,
-      fechaReserva,
-      turnoId,
-      estado: EstadoReserva.PENDIENTE
+      id: uuidv4(),
+      clientId,
+      serviceId,
+      reservationDate,
+      shiftId,
+      status: ReservationStatus.PENDING
     });
     console.log("Reserva creada con éxito");
   } catch (e) {

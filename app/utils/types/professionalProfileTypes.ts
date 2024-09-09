@@ -1,26 +1,14 @@
 import { Timestamp } from "firebase/firestore";
+import { Availability } from './availabilityTypes';
 
-export interface PerfilProfesional {
+export interface ProfessionalProfile {
     id: string;
-    usuarioId: string;
+    userId: string;
     skills: string[];
-    rating: number;
-    trabajosRealizados: any[];
-    verificadoPremium: boolean;
-    serviciosOfrecidos: string[];
-    biografia?: string;
-    disponibilidad: Disponibilidad[];
-  }
-  
-  export interface Disponibilidad {
-    dia: Timestamp;
-    turnos: Turno[];
-  }
-
-  export interface Turno {
-    turnoId: string;
-    inicio: string;
-    fin: string;
-    duracion: number;
-    servicioId: string;
+    rating: number | '';
+    jobsDone: any[];
+    verifiedPremium: boolean | '';
+    offeredServices: string[];
+    biography?: string;
+    availability: Availability[];
   }

@@ -10,6 +10,8 @@ import {
 
 import { firebaseAuth } from './config';
 import { removeSession } from '@/app/actions/auth-actions';
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, setDoc, Timestamp } from 'firebase/firestore';
+import { firebaseDB } from './config';
 
 export enum AUTH_ERROR_CODES {
   UNKNOWN_ERROR = 'auth/unknown-error',
@@ -25,18 +27,48 @@ export function onAuthStateChanged(callback: (authUser: User | null) => void) {
   return _onAuthStateChanged(firebaseAuth, callback);
 }
 
+export async function saveUserToFirestore(uid: string) {
+  try {
+    const userRef = doc(firebaseDB, "users", uid);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      await setDoc(userRef, {
+        email: null, // TODO: Get email
+        displayName: null,
+        userType: null,
+        registerDate: Timestamp.now(),
+        lastLoginDate: Timestamp.now(),
+        location: '',
+        phoneNumber: null,
+        profilePhoto: null,
+      });
+      console.log("User data saved to Firestore");
+    } else {
+      await updateDoc(userRef, {
+        lastLoginDate: Timestamp.now(),
+      });
+      console.log("User already exists in Firestore, last login date updated");
+    }
+  } catch (error) {
+    console.error("Error saving user data to Firestore:", error);
+    throw error;
+  }
+}
+
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
 
   try {
     const result = await signInWithPopup(firebaseAuth, provider);
-
     if (!result || !result.user) {
       throw new Error('Google sign in failed');
     }
-    return result.user.uid;
+    await saveUserToFirestore(result.user.uid);
+    return result;
   } catch (error) {
     console.error('Error signing in with Google', error);
+    return null;
   }
 }
 
@@ -93,7 +125,6 @@ export async function signInWithEmail(email: string, password: string) {
   }
 }
 
-
 export async function recoverPassword(email: string) {
   try {
     await sendPasswordResetEmail(firebaseAuth, email);
@@ -103,5 +134,37 @@ export async function recoverPassword(email: string) {
     alert('Hubo un error al enviar el correo de recuperación. Por favor, verifica tu dirección de correo electrónico.')
 
     return { errorCode: AUTH_ERROR_CODES.UNKNOWN_ERROR, message: 'Error desconocido', uid: null }
+  }
+}
+
+export async function fetchUserProfile(uid: string): Promise<{ clientId: string | null, professionalId: string | null }> {
+  try {
+    const userDoc = await getDoc(doc(firebaseDB, 'users', uid));
+    if (!userDoc.exists()) {
+      console.error("No se encontró el usuario.");
+      return { clientId: null, professionalId: null };
+    }
+
+    const userData = userDoc.data();
+    const userType = userData.userType;
+
+    if (userType === 'professional') {
+      const professionalQuery = query(
+        collection(firebaseDB, 'professionalProfiles'),
+        where('userId', '==', uid)
+      );
+      const professionalSnapshot = await getDocs(professionalQuery);
+      if (!professionalSnapshot.empty) {
+        const professionalData = professionalSnapshot.docs[0].data();
+        return { clientId: null, professionalId: professionalData.userId };
+      }
+    } else if (userType === 'client') {
+      return { clientId: uid, professionalId: null };
+    }
+
+    return { clientId: null, professionalId: null };
+  } catch (error) {
+    console.error("Error al obtener el perfil del usuario:", error);
+    return { clientId: null, professionalId: null };
   }
 }

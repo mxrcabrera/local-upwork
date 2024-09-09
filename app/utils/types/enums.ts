@@ -1,57 +1,50 @@
-// tipoUsuario.ts
-export enum TipoUsuario {
-  PROFESIONAL = "profesional",
-  CLIENTE = "cliente"
+
+export enum UserType {
+  PROFESSIONAL = "professional",
+  CLIENT = "client"
 }
 
-// modalidadPago.ts
-export enum ModalidadPago {
-    POR_HORA = 'por hora',
-    POR_PROYECTO = 'por proyecto',
+export enum PaymentMethod {
+    PER_HOUR = 'per hour',
+    PER_PROJECT = 'per project',
   }
   
-// tipoPrecio.ts
-export enum TipoPrecio {
-  FIJO = 'fijo',
-  A_DEFINIR = 'a definir',
-  RANGO = 'rango',
+export enum PriceType {
+  FIXED = 'fixed',
+  TO_BE_DEFINED = 'to be defined',
+  RANGE = 'range',
 }
 
-// tipoPago.ts
-export enum TipoPago {
-  SIN_PAGO = 'sin pago',
-  PARCIAL = 'parcial',
+export enum PaymentType {
+  NO_PAYMENT = 'no payment',
+  PARTIAL = 'partial',
   TOTAL = 'total',
 }
 
-// modalidadLocacionServicio.ts
-export enum ModalidadLocacionServicio {
-  A_DOMICILIO = 'A domicilio',
-  REMOTO = 'remoto',
-  COMERCIO_FISICO = 'comercio físico',
+export enum ServiceLocationModality {
+  HOME_DELIVERY = 'home_delivery',
+  REMOTE = 'remote',
+  PHYSICAL_COMMERCE = 'physical commerce',
 }
 
-// estadoReserva.ts
-export enum EstadoReserva {
-  PENDIENTE = 'pendiente',
-  CONFIRMADA = 'confirmada',
-  CANCELADA = 'cancelada',
-  COMPLETADA = 'completada',
+export enum ReservationStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  CANCELLED = 'cancelled',
+  COMPLETED = 'completed',
 }
 
-// tipoNotificacion.ts
-export enum TipoNotificacion {
-  NUEVA_RESERVA = 'nueva reserva',
-  CONFIRMACION_RESERVA = 'confirmación reserva',
-  CANCELACION_RESERVA = 'cancelación reserva',
-  RECORDATORIO_RESERVA = 'recordatorio reserva',
-  NUEVA_RESEÑA_RECIBIDA = 'nueva reseña recibida',
-  VISTA_DE_PERFIL = 'vista de perfil',
-  CONFIRMACION_DE_PAGO = 'confirmación de pago',
+export enum NotificationType {
+  NEW_RESERVATION = 'new reservation',
+  RESERVATION_CONFIRMATION = 'reservation confirmation',
+  RESERVATION_CANCELLATION = 'reservation cancellation',
+  RESERVATION_REMINDER = 'reservation reminder',
+  RESERVATION_NEW_REVIEW = 'reservation new review',
+  PROFILE_VIEW = 'profile view',
+  PAYMENT_CONFIRMATION = 'payment confirmation',
 }
 
-// estadoNotificacion.ts
-export enum EstadoNotificacion {
-  LEIDA = 'leída',
-  NO_LEIDA = 'no leída',
+export enum NotificationStatus {
+  READ = 'read',
+  UNREAD = 'unread',
 }

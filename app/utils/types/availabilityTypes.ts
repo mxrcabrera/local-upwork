@@ -1,15 +1,17 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type Turno = {
-    turnoId: string;
-    inicio: string;
-    fin: string;
-    duracion: number;
-    servicioId: string;
-    maxReservas: number;
+export type Shift = {
+    id: string;
+    shiftId: string;
+    start: string;
+    end: string;
+    length: number;
+    serviceId: string;
+    maxReservations: number;
 };
 
-export type Disponibilidad = {
-    dia: Timestamp;
-    turnos: Turno[];
+export type Availability = {
+    id: string;
+    day: Timestamp;
+    shifts: Shift[];
 };
