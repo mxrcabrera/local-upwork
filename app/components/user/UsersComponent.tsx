@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { getUsers } from '../../utils/repositories/userRepository';
+import { getUsers, createUser, updateUser, deleteUser } from '../../utils/repositories/userRepository';
 import { UserType } from '../../utils/types/enums';
 import { User } from '../../utils/types/userTypes';
 import { Timestamp } from 'firebase/firestore';
@@ -43,7 +43,7 @@ const UsersList: React.FC = () => {
           registerDate: Timestamp.fromDate(new Date()),
           id: '', // Generate or set an ID accordingly
         };
-        // Add function to create user (e.g., createUser(userToCreate))
+        await createUser(userToCreate);
         setUsers([...users, userToCreate]);
         setNewUser({
           name: '',
@@ -65,13 +65,13 @@ const UsersList: React.FC = () => {
     const updatedUser = users.find(user => user.id === id);
     if (updatedUser) {
       updatedUser.name = "Nombre Actualizado"; // Ejemplo de actualización
-      // await updateUser(id, updatedUser); // Implementar función de actualización
+      await updateUser(id, updatedUser); // Implementar función de actualización
       setUsers(users.map(user => (user.id === id ? updatedUser : user)));
     }
   };
 
   const handleDelete = async (id: string) => {
-    // await deleteUser(id); // Implementar función de eliminación
+    await deleteUser(id); // Implementar función de eliminación
     setUsers(users.filter(user => user.id !== id));
   };
 

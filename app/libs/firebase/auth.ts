@@ -12,6 +12,7 @@ import { firebaseAuth } from './config';
 import { removeSession } from '@/app/actions/auth-actions';
 import { doc, getDoc, collection, query, where, getDocs, updateDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { firebaseDB } from './config';
+import { saveUser } from '@/app/utils/repositories/userRepository';
 
 export enum AUTH_ERROR_CODES {
   UNKNOWN_ERROR = 'auth/unknown-error',
@@ -27,35 +28,6 @@ export function onAuthStateChanged(callback: (authUser: User | null) => void) {
   return _onAuthStateChanged(firebaseAuth, callback);
 }
 
-export async function saveUserToFirestore(uid: string) {
-  try {
-    const userRef = doc(firebaseDB, "users", uid);
-    const userDoc = await getDoc(userRef);
-
-    if (!userDoc.exists()) {
-      await setDoc(userRef, {
-        email: null, // TODO: Get email
-        displayName: null,
-        userType: null,
-        registerDate: Timestamp.now(),
-        lastLoginDate: Timestamp.now(),
-        location: '',
-        phoneNumber: null,
-        profilePhoto: null,
-      });
-      console.log("User data saved to Firestore");
-    } else {
-      await updateDoc(userRef, {
-        lastLoginDate: Timestamp.now(),
-      });
-      console.log("User already exists in Firestore, last login date updated");
-    }
-  } catch (error) {
-    console.error("Error saving user data to Firestore:", error);
-    throw error;
-  }
-}
-
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
 
@@ -64,7 +36,7 @@ export async function signInWithGoogle() {
     if (!result || !result.user) {
       throw new Error('Google sign in failed');
     }
-    await saveUserToFirestore(result.user.uid);
+    await saveUser(result.user.uid);
     return result;
   } catch (error) {
     console.error('Error signing in with Google', error);
@@ -84,20 +56,16 @@ export async function signOut() {
 export async function registerWithEmail(email: string, password: string) {
   try {
     const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+    await saveUser(userCredential.user.uid);
     return { errorCode: '', message: 'Inicio de sesión exitoso', uid: userCredential.user.uid }
-
   } catch (error: any) {
-
     if (error.code === AUTH_ERROR_CODES.EMAIL_ALREADY_IN_USE) {
       return ({ errorCode: AUTH_ERROR_CODES.EMAIL_ALREADY_IN_USE, message: 'El correo electrónico ya está registrado', uid: null })
-
     } else if (error.code === AUTH_ERROR_CODES.TOO_MANY_REQUESTS) {
       return ({ errorCode: AUTH_ERROR_CODES.TOO_MANY_REQUESTS, message: 'Demasiados intentos de registro seguidos. Por favor, inténtalo más tarde.', uid: null })
-
     }
     else {
       return ({ errorCode: AUTH_ERROR_CODES.UNKNOWN_ERROR, message: 'Error desconocido', uid: null })
-
     }
   }
 }
@@ -105,22 +73,17 @@ export async function registerWithEmail(email: string, password: string) {
 export async function signInWithEmail(email: string, password: string) {
   try {
     const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
+    await saveUser(userCredential.user.uid);
     return { errorCode: '', message: 'Inicio de sesión exitoso', uid: userCredential.user.uid }
-
   } catch (error: any) {
-
     if (error.code === AUTH_ERROR_CODES.INVALID_CREDENTIALS) {
       return ({ errorCode: AUTH_ERROR_CODES.INVALID_CREDENTIALS, message: 'Correo electrónico o contraseña incorrectos', uid: null })
-
     } else if (error.code === AUTH_ERROR_CODES.TOO_MANY_REQUESTS) {
       return ({ errorCode: AUTH_ERROR_CODES.TOO_MANY_REQUESTS, message: 'Demasiados intentos de inicio de sesión. Por favor, inténtalo más tarde.', uid: null })
-
     } else if (error.code === AUTH_ERROR_CODES.USER_NOT_FOUND) {
       return ({ errorCode: AUTH_ERROR_CODES.USER_NOT_FOUND, message: 'El usuario no existe', uid: null })
-
     } else {
       return ({ errorCode: AUTH_ERROR_CODES.UNKNOWN_ERROR, message: 'Error desconocido', uid: null })
-
     }
   }
 }

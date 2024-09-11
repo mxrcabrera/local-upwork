@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, addDoc, getDocs, Timestamp } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc, addDoc, updateDoc, getDocs, deleteDoc, Timestamp } from "firebase/firestore";
 import { firebaseDB } from "../../libs/firebase/config";
 import { User } from '../types/userTypes';
 import { UserType } from '../types/enums';
@@ -26,6 +26,36 @@ export async function createUser(userData: User): Promise<void> {
     console.log("Usuario creado con éxito");
   } catch (e) {
     console.error("Error al crear el usuario: ", e);
+  }
+}
+
+// Save user ID
+export async function saveUser(uid: string) {
+  try {
+    const userRef = doc(firebaseDB, "users", uid);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      await setDoc(userRef, {
+        email: null, // TODO: Get email
+        displayName: null,
+        userType: null,
+        registerDate: Timestamp.now(),
+        lastLoginDate: Timestamp.now(),
+        location: '',
+        phoneNumber: null,
+        profilePhoto: null,
+      });
+      console.log("User data saved to Firestore");
+    } else {
+      await updateDoc(userRef, {
+        lastLoginDate: Timestamp.now(),
+      });
+      console.log("User already exists in Firestore, last login date updated");
+    }
+  } catch (error) {
+    console.error("Error saving user data to Firestore:", error);
+    throw error;
   }
 }
 
@@ -102,5 +132,27 @@ export async function getProfessionalProfile(userId: string): Promise<any | null
   } catch (e) {
     console.error("Error al obtener el perfil profesional: ", e);
     return null;
+  }
+}
+
+// Update User
+export async function updateUser(userId: string, updatedData: Partial<User>): Promise<void> {
+  try {
+    const userRef = doc(firebaseDB, "usuarios", userId);
+    await updateDoc(userRef, updatedData);
+    console.log("Usuario actualizado con éxito");
+  } catch (e) {
+    console.error("Error al actualizar el usuario: ", e);
+  }
+}
+
+// Delete User
+export async function deleteUser(userId: string): Promise<void> {
+  try {
+    const userRef = doc(firebaseDB, "usuarios", userId);
+    await deleteDoc(userRef);
+    console.log("Usuario eliminado con éxito");
+  } catch (e) {
+    console.error("Error al eliminar el usuario: ", e);
   }
 }
