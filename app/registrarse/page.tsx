@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { signInWithGoogle, registerWithEmail, saveUserToFirestore } from '../libs/firebase/auth';
+import { signInWithGoogle, registerWithEmail } from '../libs/firebase/auth';
 import { createSession } from '../actions/auth-actions';
 import TextField from '@mui/material/TextField';
 import Link from 'next/link';
 import UserTypeSelectionDialog from '../components/UserTypeSelectionDialog';
 import { getDoc, setDoc, doc, updateDoc, collection } from 'firebase/firestore';
 import { firebaseDB } from '../libs/firebase/config';
+import { saveUser } from '@/app/utils/repositories/userRepository';
 
 export default function Registro() {
   const [email, setEmail] = useState('');
@@ -32,9 +33,14 @@ export default function Registro() {
   const handleGoogleSignIn = async () => {
     const result = await signInWithGoogle();
     if (result && result.user) {
-      await saveUserToFirestore(result.user.uid);
+      await saveUser(result.user.uid);
       setUserId(result.user.uid);
-      setDialogOpen(true);
+      const userType = await checkUserType(result.user.uid);
+      if (!userType) {
+        setDialogOpen(true);
+      } else {
+        await createSession(result.user.uid);
+      }
     }
   };
 
@@ -45,12 +51,14 @@ export default function Registro() {
     }
     const result = await registerWithEmail(email, password);
     if (result.uid) {
+      await saveUser(result.uid);
       const userType = await checkUserType(result.uid);
       if (!userType) {
         setUserId(result.uid);
         setDialogOpen(true);
+      } else {
+        await createSession(result.uid);
       }
-      await createSession(result.uid);
     } else {
       setError(result.message);
     }
@@ -77,6 +85,7 @@ export default function Registro() {
       }
   
       setDialogOpen(false);
+      await createSession(userId);
     }
   };
 

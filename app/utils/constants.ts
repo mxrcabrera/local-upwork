@@ -4,3 +4,5 @@ export const LOGIN_ROUTE = '/ingresar';
 export const REGISTER_ROUTE = '/registrarse';
 
 export const SESSION_COOKIE_NAME = 'user_session';
+
+export const HOME_USERS_ROUTE = `${USERS_ONLY_ROUTE}/inicio`;

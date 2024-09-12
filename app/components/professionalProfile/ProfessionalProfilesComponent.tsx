@@ -93,7 +93,6 @@ const ProfessionalProfilesComponent: React.FC = () => {
         <table className="min-w-full bg-gray-800 shadow-md rounded-md">
           <thead>
             <tr className="bg-gray-700 text-white uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left">Usuario ID</th>
               <th className="py-3 px-6 text-left">Habilidades</th>
               <th className="py-3 px-6 text-left">Calificación</th>
               <th className="py-3 px-6 text-left">Biografía</th>
@@ -117,7 +116,6 @@ const ProfessionalProfilesComponent: React.FC = () => {
             ) : (
               state.entities.map((profile: ProfessionalProfile) => (
                 <tr key={profile.id} className="border-b border-gray-700 hover:bg-gray-700">
-                  <td className="py-3 px-6 text-left whitespace-nowrap">{profile.userId}</td>
                   <td className="py-3 px-6 text-left whitespace-nowrap">{profile.skills.join(', ')}</td>
                   <td className="py-3 px-6 text-left">{profile.rating}</td>
                   <td className="py-3 px-6 text-left">{profile.biography}</td>
