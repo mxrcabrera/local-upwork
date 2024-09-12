@@ -164,14 +164,14 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange,
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 rounded">
-      <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
+      <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-violet-500 to-green-400 bg-clip-text text-transparent">
         Disponibilidad
       </h1>
       {userType === UserType.PROFESSIONAL && (
         <div className="flex justify-end mb-6">
           <Button
             onClick={handleCreate}
-            className="bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
+            className="bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
           >
             Nuevo Turno
           </Button>
@@ -231,7 +231,7 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange,
         }}
       >
         <DialogTitle className="bg-gray-800">
-          <div className="text-3xl font-bold text-center bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
+          <div className="text-3xl font-bold text-center bg-gradient-to-r from-violet-500 to-green-400 bg-clip-text text-transparent">
             {state.showCreateForm ? 'Crear Turno' : 'Editar Turno'}
           </div>
         </DialogTitle>

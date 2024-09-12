@@ -1,9 +1,9 @@
 "use client";
 
 import React from 'react';
-import ServicesListComponent from '../components/service/ServicesComponent';
+import ServicesListComponent from '../components/service/ServicesListComponent';
 
-const ServicesPage: React.FC = () => {
+const ServicesListPage: React.FC = () => {
   return (
     <div className="container mx-auto">
       <ServicesListComponent />
@@ -11,4 +11,4 @@ const ServicesPage: React.FC = () => {
   );
 };
 
-export default ServicesPage;
+export default ServicesListPage;

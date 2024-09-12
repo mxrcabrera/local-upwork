@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { TextField, Button, Grid, IconButton, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 
@@ -19,6 +20,7 @@ type EntityFormProps = {
 
 const EntityForm: React.FC<EntityFormProps> = ({ defaultValues, onSubmit, onCancel, fields }) => {
   const [formValues, setFormValues] = useState(defaultValues);
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -140,12 +142,15 @@ const EntityForm: React.FC<EntityFormProps> = ({ defaultValues, onSubmit, onCanc
         ))}
       </Grid>
       <div className="flex justify-end mt-4 space-x-2">
-        <Button className="w-80 bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow" type="submit">
+        <Button className="w-80 bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow" type="submit">
           Guardar
         </Button>
-        <Button className="w-80 bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow" type="button" onClick={onCancel} >
-          Cancelar
-        </Button>
+        <Button
+            onClick={() => router.back()}
+            className="w-80 bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-6 rounded shadow"
+          >
+            Volver
+          </Button>
       </div>
     </form>
   );

@@ -13,8 +13,8 @@ export default function NavMenu() {
             <nav>
                 <ul className="flex justify-evenly">
                     <li><Link href={"/"}>Inicio</Link></li>
-                    <li><Link href={"/profesionales"}>Encuentra profesionales</Link></li>
-                    <li><Link href={"/trabajo"}>Encuentra trabajo</Link></li>
+                    <li><Link href={"/servicios"}>Encuentra profesionales</Link></li>
+                    <li><Link href={"/profesionales"}>Encuentra trabajo</Link></li>
                     {session ? (
                         <li><button onClick={() => signOut()}>Cerrar sesión</button></li>
                     ) : (
