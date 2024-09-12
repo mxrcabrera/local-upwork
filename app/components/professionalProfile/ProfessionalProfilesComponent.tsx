@@ -78,13 +78,13 @@ const ProfessionalProfilesComponent: React.FC = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 rounded">
-      <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
+      <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-violet-500 to-green-400 bg-clip-text text-transparent">
         Perfiles Profesionales
       </h1>
       <div className="flex justify-end mb-6">
         <Button
           onClick={handleCreate}
-          className="bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
+          className="bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
         >
           Nuevo Perfil
         </Button>

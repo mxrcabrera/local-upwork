@@ -7,14 +7,14 @@ import { v4 as uuidv4 } from 'uuid';
 function isUser(obj: any): obj is User {
   return (
     typeof obj.id === 'string' &&
-    typeof obj.name === 'string' &&
-    typeof obj.email === 'string' &&
+    (typeof obj.name === 'string' || obj.name === null) &&
+    (typeof obj.email === 'string' || obj.email === null) &&
     (obj.userType === UserType.PROFESSIONAL || obj.userType === UserType.CLIENT) &&
     obj.registerDate instanceof Timestamp &&
     obj.lastLoginDate instanceof Timestamp &&
     typeof obj.location === 'string' &&
-    (typeof obj.phoneNumber === 'string' || obj.phoneNumber === undefined) &&
-    (typeof obj.profilePhoto === 'string' || obj.profilePhoto === undefined)
+    (typeof obj.phoneNumber === 'string' || obj.phoneNumber === null || obj.phoneNumber === undefined) &&
+    (typeof obj.profilePhoto === 'string' || obj.profilePhoto === null || obj.profilePhoto === undefined)
   );
 }
 
@@ -121,16 +121,32 @@ export async function getUserProfile(userId: string): Promise<User | null> {
 }
 
 // Get Professional Profile by User ID
-export async function getProfessionalProfile(userId: string): Promise<any | null> {
+export async function getProfessionalById(userId: string): Promise<User | null> {
   try {
-    const professionalDocRef = doc(firebaseDB, 'professionalProfiles', userId);
-    const professionalDoc = await getDoc(professionalDocRef);
-    if (professionalDoc.exists()) {
-      return professionalDoc.data();
+    const userDocRef = doc(firebaseDB, 'users', userId);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+      const data = userDoc.data();
+
+      const userData: User = {
+        id: userDoc.id,
+        name: data.name || null,
+        email: data.email || null,
+        userType: data.userType,
+        registerDate: data.registerDate instanceof Timestamp ? data.registerDate : Timestamp.fromDate(new Date(data.registerDate)),
+        lastLoginDate: data.lastLoginDate instanceof Timestamp ? data.lastLoginDate : Timestamp.fromDate(new Date(data.lastLoginDate)),
+        location: data.location || '',
+        phoneNumber: data.phoneNumber || null,
+        profilePhoto: data.profilePhoto || null
+      };
+
+      if (isUser(userData) && (userData.userType === UserType.PROFESSIONAL)) {
+        return userData;
+      }
     }
     return null;
   } catch (e) {
-    console.error("Error al obtener el perfil profesional: ", e);
+    console.error("Error al obtener el usuario profesional por ID: ", e);
     return null;
   }
 }

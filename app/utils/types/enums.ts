@@ -1,50 +1,50 @@
 
 export enum UserType {
-  PROFESSIONAL = "professional",
-  CLIENT = "client"
+  PROFESSIONAL = "Profesional",
+  CLIENT = "Cliente"
 }
 
 export enum PaymentMethod {
-    PER_HOUR = 'per hour',
-    PER_PROJECT = 'per project',
+    PER_HOUR = 'Por hora',
+    PER_PROJECT = 'Por proyecto',
   }
   
 export enum PriceType {
-  FIXED = 'fixed',
-  TO_BE_DEFINED = 'to be defined',
-  RANGE = 'range',
+  FIXED = 'Fijo',
+  TO_BE_DEFINED = 'A definir',
+  RANGE = 'Rango',
 }
 
 export enum PaymentType {
-  NO_PAYMENT = 'no payment',
-  PARTIAL = 'partial',
-  TOTAL = 'total',
+  NO_PAYMENT = 'Sin pago',
+  PARTIAL = 'Parcial',
+  TOTAL = 'Total',
 }
 
 export enum ServiceLocationModality {
-  HOME_DELIVERY = 'home_delivery',
-  REMOTE = 'remote',
-  PHYSICAL_COMMERCE = 'physical commerce',
+  HOME_DELIVERY = 'A domicilio',
+  REMOTE = 'Remoto',
+  PHYSICAL_COMMERCE = 'Comercio físico',
 }
 
 export enum ReservationStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  CANCELLED = 'cancelled',
-  COMPLETED = 'completed',
+  PENDING = 'Pendiente',
+  CONFIRMED = 'Confirmada',
+  CANCELLED = 'Cancelada',
+  COMPLETED = 'Completada',
 }
 
 export enum NotificationType {
-  NEW_RESERVATION = 'new reservation',
-  RESERVATION_CONFIRMATION = 'reservation confirmation',
-  RESERVATION_CANCELLATION = 'reservation cancellation',
-  RESERVATION_REMINDER = 'reservation reminder',
-  RESERVATION_NEW_REVIEW = 'reservation new review',
-  PROFILE_VIEW = 'profile view',
-  PAYMENT_CONFIRMATION = 'payment confirmation',
+  NEW_RESERVATION = 'Nueva reserva',
+  RESERVATION_CONFIRMATION = 'Confirmación de Reserva',
+  RESERVATION_CANCELLATION = 'Cancelación de Reserva',
+  RESERVATION_REMINDER = 'Recordatorio de Reserva',
+  RESERVATION_NEW_REVIEW = 'Nueva Reseña en Reserva',
+  PROFILE_VIEW = 'Perfil Visto',
+  PAYMENT_CONFIRMATION = 'Confirmación de Pago',
 }
 
 export enum NotificationStatus {
-  READ = 'read',
-  UNREAD = 'unread',
+  READ = 'Leída',
+  UNREAD = 'No leída',
 }

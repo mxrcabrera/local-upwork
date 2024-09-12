@@ -77,14 +77,14 @@ const UsersList: React.FC = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 rounded">
-      <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
+      <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-violet-500 to-green-400 bg-clip-text text-transparent">
         Usuarios
       </h1>
       {showCreateForm ? (
         <Dialog open={showCreateForm} onClose={() => {}} className="fixed inset-0 z-10 flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black opacity-30" aria-hidden="true"></div>
           <Dialog.Panel className="relative z-20 max-w-md w-full mx-auto bg-gray-800 p-6 rounded shadow-lg">
-            <Dialog.Title as="h2" className="text-3xl font-bold text-white text-center mb-8 bg-gradient-to-r from-purple-500 to-green-400 bg-clip-text text-transparent">
+            <Dialog.Title as="h2" className="text-3xl font-bold text-white text-center mb-8 bg-gradient-to-r from-violet-500 to-green-400 bg-clip-text text-transparent">
               Crear Nuevo Usuario
             </Dialog.Title>
             <div className="flex flex-col space-y-6">
@@ -112,13 +112,13 @@ const UsersList: React.FC = () => {
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={handleCreate}
-                  className="w-full bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
+                  className="w-full bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
                 >
                   Crear Usuario
                 </button>
                 <button
                   onClick={() => setShowCreateForm(false)}
-                  className="w-full bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
+                  className="w-full bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
                 >
                   Volver
                 </button>
@@ -131,7 +131,7 @@ const UsersList: React.FC = () => {
           <div className="flex justify-end mb-6">
             <button 
               onClick={() => setShowCreateForm(true)} 
-              className="bg-gradient-to-r from-purple-400 to-green-300 hover:from-purple-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
+              className="bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
             >
               Nuevo Usuario
             </button>
