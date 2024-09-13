@@ -1,11 +1,15 @@
 'use client'
-import UserProvider from "./UserProvider"
+
+import { ThemeProvider } from "./ThemeProvider";
+import SessionProvider from "./SessionProvider"
 import React from "react";
 
-export default function Providers({ children, session }: any) {
+export default function Providers({ children, session, initialTheme }: any) {
   return (
-    <UserProvider session={session}>
-      {children}
-    </UserProvider>
+    <SessionProvider session={session}>
+      <ThemeProvider initialTheme={initialTheme}>
+        {children}
+      </ThemeProvider>
+    </SessionProvider>
   );
 }

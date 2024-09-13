@@ -23,11 +23,12 @@ export default function RootLayout({
 }>) {
 
   const session = cookies().get(SESSION_COOKIE_NAME)?.value || null;
+  const initialTheme = cookies().get('theme')?.value || null;
 
   return (
-    <html lang="es">
+    <html lang="es" className={`${initialTheme || ''}`}>
       <body className={inter.className}>
-        <Providers session={session}>
+        <Providers session={session} initialTheme={initialTheme}>
           <NavMenu />
           {children}
           <Footer />
