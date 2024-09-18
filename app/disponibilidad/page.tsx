@@ -8,35 +8,43 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { fetchUserProfile, onAuthStateChanged } from '../libs/firebase/auth';
 import { UserType } from '@/app/utils/types/enums';
 import { Dayjs } from 'dayjs';
+import { useSearchParams } from 'next/navigation';
 
 const DisponibilidadPage: React.FC = () => {
+  const searchParams = useSearchParams();
+  const urlProfessionalId = searchParams.get('professionalId');
+
   const [userType, setUserType] = useState<UserType | null>(null);
   const [clientId, setClientId] = useState<string | null>(null);
-  const [professionalId, setProfessionalId] = useState<string | null>(null);
+  const [professionalId, setProfessionalId] = useState<string | null>(urlProfessionalId || null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          const profile = await fetchUserProfile(user.uid);
-          setClientId(profile.clientId);
-          setProfessionalId(profile.professionalId);
+    if (!urlProfessionalId) {
+      const unsubscribe = onAuthStateChanged(async (user) => {
+        if (user) {
+          try {
+            const profile = await fetchUserProfile(user.uid);
+            setClientId(profile.clientId);
+            setProfessionalId(profile.professionalId);
 
-          if (profile.professionalId) {
-            setUserType(UserType.PROFESSIONAL);
-          } else if (profile.clientId) {
-            setUserType(UserType.CLIENT);
+            if (profile.professionalId) {
+              setUserType(UserType.PROFESSIONAL);
+            } else if (profile.clientId) {
+              setUserType(UserType.CLIENT);
+            }
+          } catch (error) {
+            console.error("Error fetching user profiles:", error);
           }
-        } catch (error) {
-          console.error("Error fetching user profiles:", error);
         }
-      }
-      setLoading(false);
-    });
+        setLoading(false);
+      });
 
-    return () => unsubscribe();
-  }, []);
+      return () => unsubscribe();
+    } else {
+      setLoading(false);
+    }
+  }, [urlProfessionalId]);
 
   const handleDateChange = (date: Dayjs | null) => {
     console.log("Fecha seleccionada:", date);
