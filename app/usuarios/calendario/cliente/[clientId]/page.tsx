@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import CalendarClient from '../../../components/calendar/CalendarClientComponent';
+import CalendarClient from '../../../../components/calendar/CalendarClientComponent';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { fetchUserProfile } from '../../../libs/firebase/auth';
+import { fetchUserProfile } from '../../../../libs/firebase/auth';
 import { Dayjs } from 'dayjs';
 
 const CalendarClientPage: React.FC = () => {

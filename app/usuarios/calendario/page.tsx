@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Dayjs } from 'dayjs';
-import CalendarClient from '../components/calendar/CalendarClientComponent';
-import CalendarProfessional from '../components/calendar/CalendarProfessionalComponent';
+import CalendarClient from '../../components/calendar/CalendarClientComponent';
+import CalendarProfessional from '../../components/calendar/CalendarProfessionalComponent';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { UserType } from '@/app/utils/types/enums';
-import { onAuthStateChanged, fetchUserProfile } from '../libs/firebase/auth';
+import { onAuthStateChanged, fetchUserProfile } from '../../libs/firebase/auth';
 
 const CalendarPage: React.FC = () => {
   const { serviceId } = useParams();

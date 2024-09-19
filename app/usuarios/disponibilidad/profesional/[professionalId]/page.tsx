@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import CalendarProfessional from '../../../components/calendar/CalendarProfessionalComponent';
+import CalendarProfessional from '../../../../components/calendar/CalendarProfessionalComponent';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Dayjs } from 'dayjs';
@@ -13,7 +13,6 @@ const CalendarProfessionalPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Aquí puedes cargar datos adicionales si es necesario
     setLoading(false);
   }, [professionalIdString]);
 

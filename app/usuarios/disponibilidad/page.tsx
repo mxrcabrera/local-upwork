@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import AvailabilityClientComponent from '../components/availability/AvailabilityClientComponent';
-import AvailabilityProfessionalComponent from '../components/availability/AvailabilityProfessionalComponent';
+import AvailabilityClientComponent from '../../components/availability/AvailabilityClientComponent';
+import AvailabilityProfessionalComponent from '../../components/availability/AvailabilityProfessionalComponent';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { fetchUserProfile, onAuthStateChanged } from '../libs/firebase/auth';
+import { fetchUserProfile, onAuthStateChanged } from '../../libs/firebase/auth';
 import { UserType } from '@/app/utils/types/enums';
 import { Dayjs } from 'dayjs';
 import { useSearchParams } from 'next/navigation';

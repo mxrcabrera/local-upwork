@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import AvailabilityClientComponent from '../../../components/availability/AvailabilityClientComponent';
-import { fetchUserProfile } from '../../../libs/firebase/auth';
+import AvailabilityClientComponent from '../../../../components/availability/AvailabilityClientComponent';
+import { fetchUserProfile } from '../../../../libs/firebase/auth';
 
 const AvailabilityClientPage: React.FC = () => {
   const { clientId } = useParams();
