@@ -215,13 +215,14 @@ const AvailabilityProfessionalComponent: React.FC<AvailabilityProfessionalProps>
               dispatch({ type: 'SHOW_EDIT_FORM', payload: false });
             }}
             fields={[
-              { name: 'day', label: 'Fecha', type: 'custom', component: <BaseCalendarComponent 
-                userId={professionalId}
-                serviceId={state.currentEntity?.shifts[0]?.serviceId || ''}
-                userType="professional"
-                onChange={handleDateChange}
-                onTimeSelect={() => {}}
-              /> },
+              { name: 'day', label: 'Fecha', type: 'custom', component:
+                <BaseCalendarComponent 
+                  userId={professionalId}
+                  serviceId={state.currentEntity?.shifts[0]?.serviceId || ''}
+                  userType="professional"
+                  onChange={handleDateChange}
+                  onTimeSelect={() => {}}
+                /> },
               { name: 'shifts[0].start', label: 'Hora de Inicio', type: 'custom', component: (
                 <TimePicker
                   label="Hora de Inicio"

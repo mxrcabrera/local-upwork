@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import BaseCalendarComponent from './BaseCalendarComponent';
-import ReservaComponent from '../reservation/ReservationComponent';
+import ReservationComponent from '../reservation/ReservationComponent';
 import { Dayjs } from 'dayjs';
 
-interface CalendarClientProps {
+interface BookingCalendarComponentProps {
   clientId: string;
   professionalId: string;
   serviceId: string;
@@ -13,7 +13,7 @@ interface CalendarClientProps {
   onTimeSelect: (shift: { time: string, shiftId: string } | null) => void;
 }
 
-const CalendarClient: React.FC<CalendarClientProps> = ({ clientId, professionalId, serviceId, onChange, onTimeSelect }) => {
+const BookingCalendarComponent: React.FC<BookingCalendarComponentProps> = ({ clientId, professionalId, serviceId, onChange, onTimeSelect }) => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [selectedTime, setSelectedTime] = useState<{ time: string, shiftId: string } | null>(null);
 
@@ -36,7 +36,7 @@ const CalendarClient: React.FC<CalendarClientProps> = ({ clientId, professionalI
         onChange={handleDateChange}
         onTimeSelect={handleTimeSelection}
       />
-      <ReservaComponent
+      <ReservationComponent
         clientId={clientId}
         selectedDate={selectedDate}
         selectedTime={selectedTime}
@@ -45,4 +45,4 @@ const CalendarClient: React.FC<CalendarClientProps> = ({ clientId, professionalI
   );
 };
 
-export default CalendarClient;
+export default BookingCalendarComponent;
