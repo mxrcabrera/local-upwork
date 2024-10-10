@@ -8,54 +8,26 @@ import { Availability, Shift } from '../../utils/types/availabilityTypes';
 import { Service } from '@/app/utils/types/serviceTypes';
 import { useEntityState } from '../../utils/hooks/useEntityState';
 import EntityForm from '../forms/EntityForm';
-import CalendarComponent from '../calendar/CalendarComponent';
+import BaseCalendarComponent from '../calendar/BaseCalendarComponent';
 import { v4 as uuidv4 } from 'uuid';
 import { Timestamp } from 'firebase/firestore';
 import dayjs, { Dayjs } from 'dayjs';
 import { TimePicker } from '@mui/x-date-pickers';
-import { onAuthStateChanged, fetchUserProfile } from '../../libs/firebase/auth';
-import { UserType } from '@/app/utils/types/enums';
-import { User } from '@/app/utils/types/userTypes';
 
-interface AvailabilityComponentProps {
-  onChange: (date: Dayjs | null) => void;
-  clientId: string;
+interface AvailabilityProfessionalProps {
   professionalId: string;
 }
 
-const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange, clientId, professionalId }) => {
+const AvailabilityProfessionalComponent: React.FC<AvailabilityProfessionalProps> = ({ professionalId }) => {
   const [state, dispatch] = useEntityState<Availability>();
   const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userType, setUserType] = useState<UserType | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(async (user) => {
-      if (user) {
-        setIsAuthenticated(true);
-        const { clientId, professionalId } = await fetchUserProfile(user.uid);
-  
-        if (professionalId) {
-          setUserType(UserType.PROFESSIONAL);
-        } else if (clientId) {
-          setUserType(UserType.CLIENT);
-        }
-      } else {
-        setIsAuthenticated(false);
-      }
-      setLoading(false);
-    });
-  
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated && professionalId) {
+    if (professionalId) {
       fetchAvailability(professionalId);
       fetchServices();
     }
-  }, [dispatch, isAuthenticated, professionalId]);
+  }, [professionalId]);
 
   const fetchAvailability = async (professionalId: string) => {
     try {
@@ -154,29 +126,19 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange,
     }
   };
 
-  if (loading) {
-    return <div>Cargando...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return <div>No estás autenticado. Por favor, inicia sesión.</div>;
-  }
-
   return (
     <div className="p-6 min-h-screen bg-gray-900 rounded">
       <h1 className="text-4xl font-bold mb-6 text-center bg-gradient-to-r from-violet-500 to-green-400 bg-clip-text text-transparent">
         Disponibilidad
       </h1>
-      {userType === UserType.PROFESSIONAL && (
-        <div className="flex justify-end mb-6">
-          <Button
-            onClick={handleCreate}
-            className="bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
-          >
-            Nuevo Turno
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end mb-6">
+        <Button
+          onClick={handleCreate}
+          className="bg-gradient-to-r from-violet-400 to-green-300 hover:from-violet-500 hover:to-green-400 text-violet-950 font-semibold py-2 px-4 rounded shadow"
+        >
+          Nuevo Turno
+        </Button>
+      </div>
       <Grid container spacing={3}>
         {state.loading ? (
           <Typography variant="h6" color="textSecondary" align="center">
@@ -202,16 +164,14 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange,
                     ))}
                   </Typography>
                 </CardContent>
-                {userType === UserType.PROFESSIONAL && (
-                  <CardActions>
-                    <Button size="small" color="primary" onClick={() => handleEdit(availability)}>
-                      Editar
-                    </Button>
-                    <Button size="small" color="secondary" onClick={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: availability.id })}>
-                      Borrar
-                    </Button>
-                  </CardActions>
-                )}
+                <CardActions>
+                  <Button size="small" color="primary" onClick={() => handleEdit(availability)}>
+                    Editar
+                  </Button>
+                  <Button size="small" color="secondary" onClick={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: availability.id })}>
+                    Borrar
+                  </Button>
+                </CardActions>
               </Card>
             </Grid>
           ))
@@ -255,13 +215,14 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange,
               dispatch({ type: 'SHOW_EDIT_FORM', payload: false });
             }}
             fields={[
-              { name: 'day', label: 'Fecha', type: 'custom', component: <CalendarComponent 
-                onChange={handleDateChange} 
-                clientId={clientId}
-                professionalId={professionalId}
-                serviceId={state.currentEntity?.shifts[0]?.serviceId || ''}
-                userType={userType!}
-              /> },
+              { name: 'day', label: 'Fecha', type: 'custom', component:
+                <BaseCalendarComponent 
+                  userId={professionalId}
+                  serviceId={state.currentEntity?.shifts[0]?.serviceId || ''}
+                  userType="professional"
+                  onChange={handleDateChange}
+                  onTimeSelect={() => {}}
+                /> },
               { name: 'shifts[0].start', label: 'Hora de Inicio', type: 'custom', component: (
                 <TimePicker
                   label="Hora de Inicio"
@@ -293,28 +254,27 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange,
                     textField: (params) => <TextField {...params} fullWidth />
                   }}
                 />
-              ) 
-            },
-            { 
-              name: 'shifts[0].length', 
-              label: 'Duración (minutos)', 
-              type: 'number', 
-              component: <TextField 
-                label="Duración (minutos)" 
-                type="number" 
-                InputProps={{ inputProps: { min: 0, max: 60 } }} 
-                fullWidth 
-              /> 
-            },
-            { 
-              name: 'shifts[0].serviceId', 
-              label: 'Servicio', 
-              type: 'select', 
-              options: services.map(service => ({ value: service.id, label: service.title })) 
-            },
-          ]}
-        />
-      </DialogContent>
+              ) },
+              { 
+                name: 'shifts[0].length', 
+                label: 'Duración (minutos)', 
+                type: 'number', 
+                component: <TextField 
+                  label="Duración (minutos)" 
+                  type="number" 
+                  InputProps={{ inputProps: { min: 0, max: 60 } }} 
+                  fullWidth 
+                /> 
+              },
+              { 
+                name: 'shifts[0].serviceId', 
+                label: 'Servicio', 
+                type: 'select', 
+                options: services.map(service => ({ value: service.id, label: service.title })) 
+              },
+            ]}
+          />
+        </DialogContent>
       </Dialog>
       <Dialog open={!!state.entityToDelete} onClose={() => dispatch({ type: 'SET_ENTITY_TO_DELETE', payload: null })}>
         <DialogTitle className="text-white">Confirmar Eliminación</DialogTitle>
@@ -336,4 +296,4 @@ const AvailabilityComponent: React.FC<AvailabilityComponentProps> = ({ onChange,
   );
 };
 
-export default AvailabilityComponent;
+export default AvailabilityProfessionalComponent;

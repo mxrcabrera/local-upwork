@@ -6,11 +6,13 @@ import { getProfiles, createProfile, updateProfile, deleteProfile } from '../../
 import { ProfessionalProfile } from '../../utils/types/professionalProfileTypes';
 import { useEntityState } from '../../utils/hooks/useEntityState';
 import EntityForm from '../forms/EntityForm';
-import AvailabilityComponent from '../availability/AvailabilityComponent'; // Asegúrate de que la ruta sea correcta
+import AvailabilityComponent from '../availability/AvailabilityProfessionalComponent';
+import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 
 const ProfessionalProfilesComponent: React.FC = () => {
   const [state, dispatch] = useEntityState<ProfessionalProfile>();
+  const router = useRouter();
 
   const fetchProfiles = async () => {
     try {
@@ -120,7 +122,7 @@ const ProfessionalProfilesComponent: React.FC = () => {
                   <td className="py-3 px-6 text-left">{profile.rating}</td>
                   <td className="py-3 px-6 text-left">{profile.biography}</td>
                   <td className="py-3 px-6 text-left">
-                  <Button onClick={() => window.location.href = '../disponibilidad'} className="text-blue-500 hover:text-blue-600">
+                  <Button onClick={() => router.push(`/disponibilidad?professionalId=${profile.id}`)} className="text-blue-500 hover:text-blue-600">
                     Ver Disponibilidad
                   </Button>
                   </td>

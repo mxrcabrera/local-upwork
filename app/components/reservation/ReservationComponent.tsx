@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { getServicesList } from '../../utils/repositories/serviceRepository';
 import { createReservation } from '../../utils/repositories/reservationRepository';
@@ -5,13 +7,13 @@ import dayjs, { Dayjs } from 'dayjs';
 import { Timestamp } from 'firebase/firestore';
 import { Service } from '../../utils/types/serviceTypes';
 
-interface ReservaProps {
+interface ReservationProps {
   clientId: string;
   selectedDate: Dayjs | null;
   selectedTime: { time: string, shiftId: string } | null;
 }
 
-const ReservaComponent: React.FC<ReservaProps> = ({ clientId, selectedDate, selectedTime }) => {
+const ReservationComponent: React.FC<ReservationProps> = ({ clientId, selectedDate, selectedTime }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -73,4 +75,4 @@ const ReservaComponent: React.FC<ReservaProps> = ({ clientId, selectedDate, sele
   );
 };
 
-export default ReservaComponent;
+export default ReservationComponent;
