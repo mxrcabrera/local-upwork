@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { onAuthStateChanged } from '../libs/firebase/auth';
+import { onAuthStateChanged } from '../../libs/firebase/auth';
+
 
 export function useUser(InitSession: string | null) {
   const [userUid, setUser] = useState<any | null>(InitSession);

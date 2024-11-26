@@ -26,7 +26,7 @@ export default function RootLayout({
   const initialTheme = cookies().get('theme')?.value || null;
 
   return (
-    <html lang="es" className={`${initialTheme || ''}`}>
+    <html lang="es" className={initialTheme === 'dark' ? 'dark' : ''}>
       <body className={inter.className}>
         <Providers session={session} initialTheme={initialTheme}>
           <NavMenu />
