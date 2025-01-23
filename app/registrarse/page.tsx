@@ -32,8 +32,11 @@ export default function Registro() {
 
   const handleGoogleSignIn = async () => {
     const result = await signInWithGoogle();
+
     if (result && result.user) {
-      await saveUser(result.user.uid);
+      // await saveUser(result.user.uid);
+      // Removed because it's already done in signInWithGoogle
+
       setUserId(result.user.uid);
       const userType = await checkUserType(result.user.uid);
       if (!userType) {
@@ -50,8 +53,11 @@ export default function Registro() {
       return;
     }
     const result = await registerWithEmail(email, password);
+
     if (result.uid) {
-      await saveUser(result.uid);
+      //await saveUser(result.uid);
+      // Removed because it's already done in registerWithEmail
+
       const userType = await checkUserType(result.uid);
       if (!userType) {
         setUserId(result.uid);

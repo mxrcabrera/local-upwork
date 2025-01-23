@@ -9,7 +9,6 @@ import UserTypeSelectionDialog from '../components/UserTypeSelectionDialog';
 import { User } from 'firebase/auth';
 import { getDoc, setDoc, doc, updateDoc, collection } from 'firebase/firestore';
 import { firebaseDB } from '../libs/firebase/config';
-import { saveUser } from '@/app/utils/repositories/userRepository';
 
 export default function Ingreso() {
   const [email, setEmail] = useState('');
@@ -30,8 +29,9 @@ export default function Ingreso() {
 
   const handleGoogleSignIn = async () => {
     const result = await signInWithGoogle();
+
     if (result && result.user) {
-      await saveUser(result.user.uid);
+      
       const userType = await checkUserType(result.user.uid);
       if (!userType) {
         setUser(result.user);
@@ -70,8 +70,9 @@ export default function Ingreso() {
   const handleEmailSignIn = async () => {
     const result = await signInWithEmail(email, password);
     if (result.uid) {
-      await saveUser(result.uid);
+      
       const userType = await checkUserType(result.uid);
+
       if (!userType) {
         const user = { uid: result.uid, email };
         setUser(user as User);

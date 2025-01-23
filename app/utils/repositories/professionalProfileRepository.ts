@@ -18,7 +18,7 @@ export async function createProfile(profileData: ProfessionalProfile): Promise<P
         day: isTimestamp(d.day) ? d.day : Timestamp.fromDate(new Date(d.day))
       }))
     };
-    const docRef = await addDoc(collection(firebaseDB, "perfilesProfesionales"), profileWithId);
+    const docRef = await addDoc(collection(firebaseDB, "professionalProfiles"), profileWithId);
     console.log("Perfil profesional creado con éxito");
     return { ...profileWithId, id: docRef.id };
   } catch (e) {
@@ -31,7 +31,7 @@ export async function createProfile(profileData: ProfessionalProfile): Promise<P
 export async function getProfiles(): Promise<ProfessionalProfile[]> {
   try {
     const profilesQuery = query(
-      collection(firebaseDB, "perfilesProfesionales"),
+      collection(firebaseDB, "professionalProfiles"),
       orderBy("userId")
     );
     const querySnapshot = await getDocs(profilesQuery);
@@ -55,7 +55,7 @@ export async function getProfiles(): Promise<ProfessionalProfile[]> {
 // Get Profile by ID
 export async function getProfileById(profileId: string): Promise<ProfessionalProfile | null> {
   try {
-    const profileRef = doc(firebaseDB, "perfilesProfesionales", profileId);
+    const profileRef = doc(firebaseDB, "professionalProfiles", profileId);
     const profileSnap = await getDoc(profileRef);
     if (profileSnap.exists()) {
       const data = profileSnap.data() as ProfessionalProfile;
@@ -80,7 +80,7 @@ export async function getProfileById(profileId: string): Promise<ProfessionalPro
 // Update Profile
 export async function updateProfile(profileId: string, updatedData: Partial<ProfessionalProfile>): Promise<boolean> {
   try {
-    const profileRef = doc(firebaseDB, "perfilesProfesionales", profileId);
+    const profileRef = doc(firebaseDB, "professionalProfiles", profileId);
     const updatedProfileData = {
       ...updatedData,
       availability: updatedData.availability?.map(d => ({
@@ -100,7 +100,7 @@ export async function updateProfile(profileId: string, updatedData: Partial<Prof
 // Delete Profile
 export async function deleteProfile(profileId: string): Promise<boolean> {
   try {
-    const profileRef = doc(firebaseDB, "perfilesProfesionales", profileId);
+    const profileRef = doc(firebaseDB, "professionalProfiles", profileId);
     await deleteDoc(profileRef);
     console.log("Perfil profesional eliminado con éxito");
     return true;
