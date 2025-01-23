@@ -142,21 +142,19 @@ export async function fetchUserProfile(uid: string): Promise<{ clientId: string 
   }
 }
 
-// Función genérica para convertir Timestamps
 function convertTimestamps(data: any): any {
   if (data === null || typeof data !== 'object') {
-    return data; // Si no es un objeto, devolver el valor tal cual
+    return data;
   }
 
   if (data instanceof Timestamp) {
-    return data.toMillis(); // Convertir Timestamp a milisegundos
+    return data.toDate().toISOString(); // Convertir a cadena ISO
   }
 
   if (Array.isArray(data)) {
-    return data.map(convertTimestamps); // Recorrer arrays
+    return data.map(convertTimestamps);
   }
 
-  // Recorrer objetos
   const result: Record<string, any> = {};
   for (const key in data) {
     if (data.hasOwnProperty(key)) {

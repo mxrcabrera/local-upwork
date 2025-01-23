@@ -10,10 +10,7 @@ import { UserType } from '@/app/utils/types';
 import { fetchUserProfile } from '@/app/libs/firebase/auth';
 import ProfessionalProfileInfo from '@/app/components/professionalProfile/ProfessionalProfileInfo';
 
-interface TimestampType {
-  seconds: number;
-  nanoseconds: number;
-}
+
 
 const AdminPage = () => {
   const { session } = useSessionContext();
@@ -51,15 +48,8 @@ const AdminPage = () => {
     }
   ];
 
-  const formatDate = (timestamp: TimestampType | undefined) => {
-    if (!timestamp) return 'No disponible';
-    const date = new Date(timestamp.seconds * 1000); // Convertir segundos a milisegundos
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  // Definido afuera del componente para evitar errores de tipo
+  const registeredAt: any = user?.registerDate
 
   return (
     <div className="min-h-screen ">
@@ -95,7 +85,9 @@ const AdminPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 " />
-                <span>Registrado: {formatDate(user?.registerDate as TimestampType)}</span>
+                Registrado: {user?.registerDate
+                  ? new Date(registeredAt).toLocaleDateString()
+                  : 'Fecha de registro no disponible'}
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 " />
