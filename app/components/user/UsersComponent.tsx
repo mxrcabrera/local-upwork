@@ -64,14 +64,14 @@ const UsersList: React.FC = () => {
   const handleEdit = async (id: string) => {
     const updatedUser = users.find(user => user.id === id);
     if (updatedUser) {
-      updatedUser.name = "Nombre Actualizado"; // Ejemplo de actualización
-      await updateUser(id, updatedUser); // Implementar función de actualización
+      updatedUser.name = "Nombre Actualizado"; // Update example
+      await updateUser(id, updatedUser); // Implement update function
       setUsers(users.map(user => (user.id === id ? updatedUser : user)));
     }
   };
 
   const handleDelete = async (id: string) => {
-    await deleteUser(id); // Implementar función de eliminación
+    await deleteUser(id); // Implement delete function
     setUsers(users.filter(user => user.id !== id));
   };
 

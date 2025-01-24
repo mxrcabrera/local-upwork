@@ -13,8 +13,6 @@ export default function NavMenu() {
 
     const { theme } = useTheme();
 
-    console.log(theme)
-
     return (
         <header className="w-full z-20 fixed bg-white/50 backdrop-blur-lg ">
 

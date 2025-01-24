@@ -13,6 +13,7 @@ import { removeSession } from '@/app/actions/auth-actions';
 import { doc, getDoc, collection, query, where, getDocs, updateDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { firebaseDB } from './config';
 import { saveUser } from '@/app/utils/repositories/userRepository';
+import { ProfessionalProfile, TimestampLocalType } from '@/app/utils/types';
 
 export enum AUTH_ERROR_CODES {
   UNKNOWN_ERROR = 'auth/unknown-error',
@@ -36,8 +37,12 @@ export async function signInWithGoogle() {
     if (!result || !result.user) {
       throw new Error('Google sign in failed');
     }
-    await saveUser(result.user.uid);
+
+    const userEmail: any = result.user.email;
+    await saveUser(result.user.uid, userEmail);
+
     return result;
+
   } catch (error) {
     console.error('Error signing in with Google', error);
     return null;
@@ -56,9 +61,12 @@ export async function signOut() {
 export async function registerWithEmail(email: string, password: string) {
   try {
     const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
-    await saveUser(userCredential.user.uid);
+    await saveUser(userCredential.user.uid, email);
+
     return { errorCode: '', message: 'Inicio de sesión exitoso', uid: userCredential.user.uid }
+
   } catch (error: any) {
+
     if (error.code === AUTH_ERROR_CODES.EMAIL_ALREADY_IN_USE) {
       return ({ errorCode: AUTH_ERROR_CODES.EMAIL_ALREADY_IN_USE, message: 'El correo electrónico ya está registrado', uid: null })
     } else if (error.code === AUTH_ERROR_CODES.TOO_MANY_REQUESTS) {
@@ -74,6 +82,7 @@ export async function signInWithEmail(email: string, password: string) {
   try {
     const userCredential = await signInWithEmailAndPassword(firebaseAuth, email, password);
     await saveUser(userCredential.user.uid);
+
     return { errorCode: '', message: 'Inicio de sesión exitoso', uid: userCredential.user.uid }
   } catch (error: any) {
     if (error.code === AUTH_ERROR_CODES.INVALID_CREDENTIALS) {
@@ -121,6 +130,7 @@ export async function fetchUserProfile(uid: string): Promise<{ clientId: string 
         const professionalData = professionalSnapshot.docs[0].data();
         return { clientId: null, professionalId: professionalData.userId };
       }
+
     } else if (userType === 'client') {
       return { clientId: uid, professionalId: null };
     }
@@ -129,5 +139,78 @@ export async function fetchUserProfile(uid: string): Promise<{ clientId: string 
   } catch (error) {
     console.error("Error al obtener el perfil del usuario:", error);
     return { clientId: null, professionalId: null };
+  }
+}
+
+function convertTimestamps(data: any): any {
+  if (data === null || typeof data !== 'object') {
+    return data;
+  }
+
+  if (data instanceof Timestamp) {
+    return data.toDate().toISOString(); // Convert string to ISO
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(convertTimestamps);
+  }
+
+  const result: Record<string, any> = {};
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      result[key] = convertTimestamps(data[key]);
+    }
+  }
+  return result;
+}
+
+export async function fetchUserInfo(uid: string): Promise<any | null> {
+  try {
+    const userDoc = await getDoc(doc(firebaseDB, 'users', uid));
+
+    if (!userDoc.exists()) {
+      console.error("No se encontró el usuario.");
+      return null;
+    }
+
+    const userData = userDoc.data();
+
+    // Automatically convert all Timestamps into the object
+    const convertedUserData = convertTimestamps(userData);
+
+    return convertedUserData;
+
+  } catch (error) {
+    console.error("Error al obtener el usuario:", error);
+    return null;
+  }
+}
+
+export async function fetchProfessionalInfo(uid: string): Promise<ProfessionalProfile | null> {
+  try {
+    const professionalQuery = query(
+      collection(firebaseDB, 'professionalProfiles'),
+      where('userId', '==', uid)
+    );
+
+    const professionalSnapshot = await getDocs(professionalQuery);
+
+    if (professionalSnapshot.empty) {
+      return null;
+    }
+
+    const doc = professionalSnapshot.docs[0];
+    const data = doc.data();
+
+    // Automatically convert all Timestamps into the object
+    const convertedData = convertTimestamps(data);
+
+    return {
+      id: doc.id,
+      ...convertedData, 
+    };
+  } catch (error) {
+    console.error("Error al obtener el perfil del usuario:", error);
+    return null;
   }
 }

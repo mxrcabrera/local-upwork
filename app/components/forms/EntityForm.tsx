@@ -8,7 +8,7 @@ type Field = {
   label: string;
   type: string;
   options?: { value: string; label: string }[];
-  component?: JSX.Element; // Permitir componentes personalizados
+  component?: JSX.Element; // Allow custom components
 };
 
 type EntityFormProps = {

@@ -27,7 +27,7 @@ export async function createAvailability(availabilityData: Omit<Availability, 'i
 export async function getAvailability(professionalId: string): Promise<Availability[]> {
   try {
     const availabilityQuery = query(
-      collection(firebaseDB, `perfilesProfesionales/${professionalId}/disponibilidad`),
+      collection(firebaseDB, `professionalProfiles/${professionalId}/disponibilidad`),
       orderBy("day")
     );
     const querySnapshot = await getDocs(availabilityQuery);

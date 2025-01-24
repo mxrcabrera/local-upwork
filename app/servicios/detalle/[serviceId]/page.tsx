@@ -27,7 +27,7 @@ const ServiceDetailPage: React.FC = () => {
 
   if (!service) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen mt-24 pt-28">
         <Typography variant="h6" color="textSecondary">
           Cargando servicio...
         </Typography>
@@ -36,7 +36,7 @@ const ServiceDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 min-h-screen bg-gray-900 rounded-lg shadow-lg">
+    <div className="container mx-auto p-6 min-h-screen bg-gray-900 rounded-lg shadow-lg pt-28">
       <Card className="bg-[#424242] text-white p-6 rounded-lg">
         <CardContent>
           <Typography variant="h4" component="div" className="text-center mb-6 font-bold">

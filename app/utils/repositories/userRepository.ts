@@ -30,14 +30,14 @@ export async function createUser(userData: User): Promise<void> {
 }
 
 // Save user ID
-export async function saveUser(uid: string) {
+export async function saveUser(uid: string, email?: string): Promise<void> {
   try {
     const userRef = doc(firebaseDB, "users", uid);
     const userDoc = await getDoc(userRef);
 
     if (!userDoc.exists()) {
       await setDoc(userRef, {
-        email: null, // TODO: Get email
+        email: email, 
         displayName: null,
         userType: null,
         registerDate: Timestamp.now(),
