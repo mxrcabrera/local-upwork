@@ -37,7 +37,7 @@ const EditServiceComponent: React.FC = () => {
       setSaving(true);
       try {
         await updateService(service.id, { ...service, ...data });
-        router.push('/servicios'); // Redirige a la lista de servicios después de guardar
+        router.push('/servicios'); // Redirect to list of services after saving
       } catch (error) {
         console.error("Error updating service:", error);
       } finally {

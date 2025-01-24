@@ -1,4 +1,4 @@
-'use client' // <-- Añade esto al principio
+'use client'
 
 import { fetchProfessionalInfo } from "@/app/libs/firebase/auth"
 import { ProfessionalProfile } from "@/app/utils/types"

@@ -48,7 +48,7 @@ const AdminPage = () => {
     }
   ];
 
-  // Definido afuera del componente para evitar errores de tipo
+  // Defined outside the component to avoid type errors
   const registeredAt: any = user?.registerDate
 
   return (

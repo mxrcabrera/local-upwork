@@ -148,7 +148,7 @@ function convertTimestamps(data: any): any {
   }
 
   if (data instanceof Timestamp) {
-    return data.toDate().toISOString(); // Convertir a cadena ISO
+    return data.toDate().toISOString(); // Convert string to ISO
   }
 
   if (Array.isArray(data)) {
@@ -175,7 +175,7 @@ export async function fetchUserInfo(uid: string): Promise<any | null> {
 
     const userData = userDoc.data();
 
-    // Convertir automáticamente todos los Timestamps en el objeto
+    // Automatically convert all Timestamps into the object
     const convertedUserData = convertTimestamps(userData);
 
     return convertedUserData;
@@ -202,12 +202,12 @@ export async function fetchProfessionalInfo(uid: string): Promise<ProfessionalPr
     const doc = professionalSnapshot.docs[0];
     const data = doc.data();
 
-    // Convertir automáticamente todos los Timestamps
+    // Automatically convert all Timestamps into the object
     const convertedData = convertTimestamps(data);
 
     return {
       id: doc.id,
-      ...convertedData, // Usar los datos convertidos
+      ...convertedData, 
     };
   } catch (error) {
     console.error("Error al obtener el perfil del usuario:", error);

@@ -3,7 +3,6 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { User } from '@/app/utils/types';
 
-// Define el tipo del contexto
 interface UserContextType {
     user: User | null;
     loading: boolean;
@@ -11,10 +10,8 @@ interface UserContextType {
     setUser: (user: User | null) => void;
 }
 
-// Crea el contexto
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Hook personalizado para usar el contexto
 export function useUser() {
     const context = useContext(UserContext);
     if (!context) {
@@ -34,8 +31,8 @@ export default function UserProvider({ children, initialUser }: UserProviderProp
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
-        // Aquí puedes añadir lógica para mantener el usuario actualizado
-        // Por ejemplo, suscribirte a cambios de autenticación TODO
+            // Here you can add logic to keep the user updated
+            // For example, subscribe to authentication changes TODO
     }, []);
 
 

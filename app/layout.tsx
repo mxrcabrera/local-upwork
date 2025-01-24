@@ -25,7 +25,7 @@ export default async function RootLayout({
   const session = cookies().get(SESSION_COOKIE_NAME)?.value || null;
   const initialTheme = cookies().get('theme')?.value || null;
   
-  // Obtener el usuario inicial si hay sesión
+  // Get the initial user if there is a session
   let initialUser = null;
   if (session) {
     try {
